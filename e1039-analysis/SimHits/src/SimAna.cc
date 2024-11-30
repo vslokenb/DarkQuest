@@ -31,7 +31,7 @@
 #include "SimAna.h"
 
 SimAna::SimAna(const std::string &name)
-    : SubsysReco(name), _legacyContainer(true), _saveSecondaries(false), _savePrimaries(true), _saveTracks(true), _saveVertex(true)
+    : nEvent(0), SubsysReco(name), _legacyContainer(true), _saveSecondaries(false), _savePrimaries(true), _saveTracks(true), _saveVertex(true)
 {
 }
 
@@ -487,6 +487,8 @@ int SimAna::process_event(PHCompositeNode *topNode)
     // reset variables to max.
     ResetEvalVars();
 
+    std::cout<<"NEVENT: "<<nEvent<<std::endl;
+    nEvent++;
     // save hits by default
     n_hits = 0;
     std::map<int, int> list_cnt; // [det ID] -> hit count

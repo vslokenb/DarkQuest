@@ -1,0 +1,8 @@
+/seaquest/users/xinlongl/projects/z_vtx_sensitivity/DarkQuest/e1039-analysis/SimHits/work/CMakeFiles/sim_ana.dir
+/seaquest/users/xinlongl/projects/z_vtx_sensitivity/DarkQuest/e1039-analysis/SimHits/work/CMakeFiles/install_pcm.dir
+/seaquest/users/xinlongl/projects/z_vtx_sensitivity/DarkQuest/e1039-analysis/SimHits/work/CMakeFiles/edit_cache.dir
+/seaquest/users/xinlongl/projects/z_vtx_sensitivity/DarkQuest/e1039-analysis/SimHits/work/CMakeFiles/rebuild_cache.dir
+/seaquest/users/xinlongl/projects/z_vtx_sensitivity/DarkQuest/e1039-analysis/SimHits/work/CMakeFiles/list_install_components.dir
+/seaquest/users/xinlongl/projects/z_vtx_sensitivity/DarkQuest/e1039-analysis/SimHits/work/CMakeFiles/install.dir
+/seaquest/users/xinlongl/projects/z_vtx_sensitivity/DarkQuest/e1039-analysis/SimHits/work/CMakeFiles/install/local.dir
+/seaquest/users/xinlongl/projects/z_vtx_sensitivity/DarkQuest/e1039-analysis/SimHits/work/CMakeFiles/install/strip.dir

@@ -1,0 +1,3 @@
+/seaquest/users/xinlongl/projects/z_vtx_sensitivity/DarkQuest/e1039-analysis/SimHits/install/lib/libsim_ana.so
+/seaquest/users/xinlongl/projects/z_vtx_sensitivity/DarkQuest/e1039-analysis/SimHits/install/include/DoEmbedding.h
+/seaquest/users/xinlongl/projects/z_vtx_sensitivity/DarkQuest/e1039-analysis/SimHits/install/include/SimAna.h

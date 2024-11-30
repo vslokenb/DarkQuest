@@ -51,6 +51,7 @@ public:
     void save_vertex(bool b);
 
 private:
+
     int GetNodes(PHCompositeNode* topNode);
     bool _legacyContainer;
     bool _saveSecondaries;
@@ -59,7 +60,7 @@ private:
     bool _saveVertex;
 
     void MakeTree();
-
+	int nEvent;
     SQHitVector* _hitVector;
     SQTrackVector* _trackVector;
     SQDimuonVector* _dimuonVector;
