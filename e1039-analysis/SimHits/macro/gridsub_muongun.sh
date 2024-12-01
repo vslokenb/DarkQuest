@@ -1,6 +1,8 @@
 #!/bin/bash
 work_dir=$1
 n_events=$2
+EMCal_pos=$3
+St3_pos_dif=$4
 work_dir=/pnfs/e1039/scratch/users/$USER/MUONGUN/$work_dir
 echo $work_dir
 mkdir -p $work_dir
@@ -28,7 +30,7 @@ do
 	CMD+=" -L $job_dir/log_gridrun.txt"
 	CMD+=" -f $job_dir/input_MC.tar.gz"
 	CMD+=" -d OUTPUT $job_dir/out"
-	CMD+=" file://$job_dir/gridrun_muongun.sh $n_events $z_vtx"
+	CMD+=" file://$job_dir/gridrun_muongun.sh $n_events $z_vtx $EMCal_pos $St3_pos_dif"
 	echo $CMD
 	unbuffer $CMD |& tee $job_dir/log_jobsub_submit.txt
 	RET_SUB=${PIPESTATUS[0]}

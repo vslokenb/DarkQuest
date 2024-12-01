@@ -59,8 +59,8 @@ int RecoE1039Sim_muongun(const int nevents = 200,
                  std::string out_path = "./",
                  std::string pileup_file = "/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root",
                  const int verbosity = 0,
-		 double st3_pos_dif=-100,
-		 double EMCal_pos=1930
+		 double EMCal_pos=1930,
+		 double st3_pos_dif=-100
 		 )
 {
     // input simulation
