@@ -168,7 +168,7 @@ int RecoE1039Sim_muongun(const int nevents = 200,
     const bool do_absorber = true;
     const bool do_dphodo = true;
     const bool do_station1DC = false; // station-1 drift chamber should be turned off by default
-    const bool doEMCal = true;       // emcal turned off (for SpinQuest)
+    const bool doEMCal = false;       // emcal turned off (for SpinQuest)
 
     // SpinQuest constants
     const double target_coil_pos_z = -300;
@@ -289,12 +289,14 @@ int RecoE1039Sim_muongun(const int nevents = 200,
         genp->set_vertex_distribution_function(PHG4SimpleEventGenerator::Uniform,
                                                PHG4SimpleEventGenerator::Uniform,
                                                PHG4SimpleEventGenerator::Uniform);
-        genp->set_vertex_distribution_mean(10.0, 10.0, zvertex); // to set after FMAG: zvertex: 520
-        genp->set_vertex_distribution_width(10.0, 10.0, 0.0);    // for protons set to 10.0 in z?
+        //genp->set_vertex_distribution_mean(0.0, 0.0, 150.); // to set after FMAG: zvertex: 520
+        //genp->set_vertex_distribution_width(10.0, 10.0, zvertex);    // for protons set to 10.0 in z?
+        genp->set_vertex_distribution_mean(0.0, 0.0, zvertex); // to set after FMAG: zvertex: 520
+        genp->set_vertex_distribution_width(10.0, 10.0, 450.0);    // for protons set to 10.0 in z?
         genp->set_vertex_size_function(PHG4SimpleEventGenerator::Uniform);
         genp->set_vertex_size_parameters(0.0, 0.0);
 
-        genp->set_pxpypz_range(-.15, .15, -.15, .15, 10., 100.);
+        genp->set_pxpypz_range(-1.,1., -1., 1., 10., 100.);
 
         genp->Verbosity(verbosity);
         se->registerSubsystem(genp);
@@ -306,20 +308,22 @@ int RecoE1039Sim_muongun(const int nevents = 200,
         if (do_dy)
             pythia8->set_config_file("$DIR_TOP/data/pythiaconfig/phpythia8_DY.cfg");
         else
-            pythia8->set_config_file("$DIR_TOP/data/pythiaconfig/phpythia8_Jpsi.cfg");
+            pythia8->set_config_file("./data/pythiaconfig/phpythia8_Jpsi.cfg");
+	pythia8->set_vertex_distribution_function(PHHepMCGenHelper::Uniform,PHHepMCGenHelper::Uniform,PHHepMCGenHelper::Uniform,PHHepMCGenHelper::Uniform);
         pythia8->set_vertex_distribution_mean(0.0, 0.0, zvertex, 0);
+        pythia8->set_vertex_distribution_width(10.0,10.0,450.0,0);
         pythia8->set_embedding_id(1);
         se->registerSubsystem(pythia8);
 
         pythia8->set_trigger_AND();
         PHPy8ParticleTrigger *trigger_mup = new PHPy8ParticleTrigger();
         trigger_mup->AddParticles("-13");
-        trigger_mup->SetPzHighLow(120, 30);
+        trigger_mup->SetPzHighLow(120, 25);
         pythia8->register_trigger(trigger_mup);
 
         PHPy8ParticleTrigger *trigger_mum = new PHPy8ParticleTrigger();
         trigger_mum->AddParticles("13");
-        trigger_mum->SetPzHighLow(120, 30);
+        trigger_mum->SetPzHighLow(120, 25);
         pythia8->register_trigger(trigger_mum);
 
         HepMCNodeReader *hr = new HepMCNodeReader();
@@ -406,7 +410,6 @@ int RecoE1039Sim_muongun(const int nevents = 200,
     SQDigitizer *digitizer = new SQDigitizer("DPDigitizer", 0);
     digitizer->Verbosity(verbosity);
     digitizer->set_enable_st1dc(do_station1DC); // these two lines need to be in
-                                                // sync with the parameters used
     digitizer->set_enable_dphodo(
         do_dphodo); // in the SetupSensitiveVolumes() function call above
     if (doEMCal)
@@ -450,11 +453,11 @@ int RecoE1039Sim_muongun(const int nevents = 200,
     truthMaker->set_legacy_rec_container(legacy_rec_container);
     if (do_aprime_muon or do_aprime_electron)
     {
-        truthMaker->set_m_process_type(3); // set process type to 3 (A' -> di lepton) since we only have a 3 particle process instead of 0+1->2+3
+    //    truthMaker->set_m_process_type(3); // set process type to 3 (A' -> di lepton) since we only have a 3 particle process instead of 0+1->2+3
     }
     if (do_trimuon)
     {
-        truthMaker->set_m_process_type(5);
+    //    truthMaker->set_m_process_type(5);
     }
     truthMaker->Verbosity(verbosity);
     se->registerSubsystem(truthMaker);
@@ -463,7 +466,7 @@ int RecoE1039Sim_muongun(const int nevents = 200,
     // needs TruthNodeMaker to associate the trigger to SQEvent
     DPTriggerAnalyzer *dptrigger = new DPTriggerAnalyzer();
     dptrigger->set_road_set_file_name("$E1039_RESOURCE/trigger/trigger_67.txt");
-    dptrigger->set_dproad_set_file_name("$DIR_TOP/data/trigger/DPTrigger_road16.txt");
+    //dptrigger->set_dproad_set_file_name("$DIR_TOP/data/trigger/DPTrigger_road16.txt");
     dptrigger->Verbosity(verbosity);
     se->registerSubsystem(dptrigger);
 

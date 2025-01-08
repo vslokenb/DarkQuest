@@ -168,7 +168,7 @@ int RecoE1039Sim_muongun(const int nevents = 200,
     const bool do_absorber = true;
     const bool do_dphodo = true;
     const bool do_station1DC = false; // station-1 drift chamber should be turned off by default
-    const bool doEMCal = true;       // emcal turned off (for SpinQuest)
+    const bool doEMCal = false;       // emcal turned off (for SpinQuest)
 
     // SpinQuest constants
     const double target_coil_pos_z = -300;
@@ -289,12 +289,14 @@ int RecoE1039Sim_muongun(const int nevents = 200,
         genp->set_vertex_distribution_function(PHG4SimpleEventGenerator::Uniform,
                                                PHG4SimpleEventGenerator::Uniform,
                                                PHG4SimpleEventGenerator::Uniform);
-        genp->set_vertex_distribution_mean(10.0, 10.0, zvertex); // to set after FMAG: zvertex: 520
-        genp->set_vertex_distribution_width(10.0, 10.0, 0.0);    // for protons set to 10.0 in z?
+        //genp->set_vertex_distribution_mean(0.0, 0.0, 150.); // to set after FMAG: zvertex: 520
+        //genp->set_vertex_distribution_width(10.0, 10.0, zvertex);    // for protons set to 10.0 in z?
+        genp->set_vertex_distribution_mean(0.0, 0.0, zvertex); // to set after FMAG: zvertex: 520
+        genp->set_vertex_distribution_width(10.0, 10.0, 450.0);    // for protons set to 10.0 in z?
         genp->set_vertex_size_function(PHG4SimpleEventGenerator::Uniform);
         genp->set_vertex_size_parameters(0.0, 0.0);
 
-        genp->set_pxpypz_range(-.15, .15, -.15, .15, 10., 100.);
+        genp->set_pxpypz_range(-1.,1., -1., 1., 10., 100.);
 
         genp->Verbosity(verbosity);
         se->registerSubsystem(genp);
@@ -406,7 +408,6 @@ int RecoE1039Sim_muongun(const int nevents = 200,
     SQDigitizer *digitizer = new SQDigitizer("DPDigitizer", 0);
     digitizer->Verbosity(verbosity);
     digitizer->set_enable_st1dc(do_station1DC); // these two lines need to be in
-                                                // sync with the parameters used
     digitizer->set_enable_dphodo(
         do_dphodo); // in the SetupSensitiveVolumes() function call above
     if (doEMCal)
@@ -450,11 +451,11 @@ int RecoE1039Sim_muongun(const int nevents = 200,
     truthMaker->set_legacy_rec_container(legacy_rec_container);
     if (do_aprime_muon or do_aprime_electron)
     {
-        truthMaker->set_m_process_type(3); // set process type to 3 (A' -> di lepton) since we only have a 3 particle process instead of 0+1->2+3
+    //    truthMaker->set_m_process_type(3); // set process type to 3 (A' -> di lepton) since we only have a 3 particle process instead of 0+1->2+3
     }
     if (do_trimuon)
     {
-        truthMaker->set_m_process_type(5);
+    //    truthMaker->set_m_process_type(5);
     }
     truthMaker->Verbosity(verbosity);
     se->registerSubsystem(truthMaker);
@@ -463,7 +464,7 @@ int RecoE1039Sim_muongun(const int nevents = 200,
     // needs TruthNodeMaker to associate the trigger to SQEvent
     DPTriggerAnalyzer *dptrigger = new DPTriggerAnalyzer();
     dptrigger->set_road_set_file_name("$E1039_RESOURCE/trigger/trigger_67.txt");
-    dptrigger->set_dproad_set_file_name("$DIR_TOP/data/trigger/DPTrigger_road16.txt");
+    //dptrigger->set_dproad_set_file_name("$DIR_TOP/data/trigger/DPTrigger_road16.txt");
     dptrigger->Verbosity(verbosity);
     se->registerSubsystem(dptrigger);
 

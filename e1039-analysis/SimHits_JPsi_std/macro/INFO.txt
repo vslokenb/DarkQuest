@@ -1,0 +1,16 @@
+project z_vtx_sensitivity
+study of the reconstruction effieciency for muons and other particles produced at different positions
+
+muon gun distribution information:
+
+detector effieciency:
+
+detector resolution:
+
+pileup:
+
+trigger:
+
+
+
+

@@ -289,12 +289,12 @@ int RecoE1039Sim_muongun(const int nevents = 200,
         genp->set_vertex_distribution_function(PHG4SimpleEventGenerator::Uniform,
                                                PHG4SimpleEventGenerator::Uniform,
                                                PHG4SimpleEventGenerator::Uniform);
-        genp->set_vertex_distribution_mean(10.0, 10.0, zvertex); // to set after FMAG: zvertex: 520
-        genp->set_vertex_distribution_width(10.0, 10.0, 0.0);    // for protons set to 10.0 in z?
+        genp->set_vertex_distribution_mean(0.0, 0.0, zvertex); // to set after FMAG: zvertex: 520
+        genp->set_vertex_distribution_width(10.0, 10.0,0);    // for protons set to 10.0 in z?
         genp->set_vertex_size_function(PHG4SimpleEventGenerator::Uniform);
         genp->set_vertex_size_parameters(0.0, 0.0);
 
-        genp->set_pxpypz_range(-.15, .15, -.15, .15, 10., 100.);
+        genp->set_pxpypz_range(-1.,1., -1., 1., 10., 100.);
 
         genp->Verbosity(verbosity);
         se->registerSubsystem(genp);

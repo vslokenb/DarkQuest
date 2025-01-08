@@ -33,7 +33,7 @@ source core-inst/this-e1039.sh
 export DIR_TOP='./'
 export LD_LIBRARY_PATH="./work":$LD_LIBRARY_PATH
 ls
-time root -b -q RecoE1039Sim_muongun.C\($n_events,3,1,$z_vtx,true,true,false,\"\",\"\",\"reco_muongun_"$EMCal_pos"_"$St3_pos_dif"_$z_vtx.root\",\"./\",\"/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root\",0,$EMCal_pos,$St3_pos_dif\)
+time root -b -q RecoE1039Sim_muongun.C\($n_events,3,1,$z_vtx,true,true,false,\"\",\"\",\"reco_muongun_"$EMCal_pos"_"$St3_pos_dif".root\",\"./\",\"/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root\",0,$EMCal_pos,$St3_pos_dif\)
 
 echo RecoE1039Sim_muongun.C\($n_events,3,1,$z_vtx,true,true,false,\"\",\"\",\"reco_muongun_$z_vtx.root\",\"./\",\"/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root\",0,$EMCal_pos,$St3_pos_dif\)
 ls
