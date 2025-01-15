@@ -63,38 +63,25 @@ for directory in directories:
             for i in range(len(z_pos)):
                 #                z_pos = vtx_z[i][0]
                 try:
-                #    z_pos = vtx_z[i][0]  # Get the z position for this event
-                    # If the track passes the cut (track_pz < 120), it's a "hit" event
                     z_positions.append(z_pos[i][0])
-                
-                    hit_count.append(1)
+                    if hits[i] > 0: # if match is true, append to hit count (success!), else false
+                        hit_count.append(1)
   #                      print('hit')
                     else:
-                        hit_count.append(0)
-   #                     print('nah')
-                    # Count the event for the z position
-#                    z_positions.append(z_pos[i][0])
+                        hit_count.append(0) 
                     total_count.append(1)
                 except Exception as e:
                     total_index_errors += 1
-                    # If there's an IndexError, treat as a no-hit
+                    # If there's an IndexError, treat as a no-hit. DO NOT PANIC IF THIS APPEARS, might just be NaN entry
                     hit_count.append(0)
-#                    print('error nah: ', e)
- #                   z_positions.append(z_pos[i][0])
                     total_count.append(1)
         except: #Exception as e:
-            print(f"Error processing file {file}")
-
-    # Compute resolution statistics for the current directory
- #   bin_resols, bin_edges, _ = binned_statistic(truth, reco, statistic='std', bins=19, range=(5, 100))
-    # Calculate the bin centers for plotting
-  #  xaxis = [(bin_edges[i] + bin_edges[i + 1]) / 2 for i in range(len(bin_edges) - 1)]
+            print(f"Error processing file {file}") #IT IS OK AND EXCEPTED FOR SOME OF THESE ERRORS TO APPEAR, AS LONG AS NOT EVERY FILE
     # Store the data for later plotting
     all_bin_resols.append(hit_count)
     all_xaxis.append(z_positions)
     
     labels.append(directory)
-    #plt.plot(xaxis,bin_resols, '-', label=directory)
 # Plot the results for all directories
 plt.figure(figsize=(8, 6))
 
@@ -110,27 +97,19 @@ for i, (z_pos_list, hit_count_list) in enumerate(zip(all_xaxis, all_bin_resols))
     # Loop over all events and categorize them into bins
     for z_pos, hit in zip(z_pos_list, hit_count_list):
         # Find the bin index based on z position
-    #    print('hit: ', hit)
-     #   print('z_pos: ', z_pos)
         bin_index = np.digitize(z_pos, z_bins) - 1  # -1 because bins are 1-indexed
-      #  print('bin_index: ', bin_index)
-       # print('len(hits_in_bin): ', len(hits_in_bin))
         if 0 <= bin_index < len(hits_in_bin):
             total_in_bin[bin_index] += 1
             hits_in_bin[bin_index] += hit
-#        except:
- #           print(bin_index, 'bin index')
-  #          print(len(hits_in_bin), 'hits in bin')
 
     # Calculate the efficiency for this directory
+    #########################
+    
    # print(hits_in_bin)
    # print(total_in_bin)
     efficiency = hits_in_bin / total_in_bin
     efficiency_per_bin.append(efficiency)
     # Plot data for each directory
-    #colors = ['b', 'g', 'r', 'c']  # Colors for different directories
-    #labels = ['0cm', '-50cm', '-100cm', '-200cm']  # Labels for the directories
-    #for i, (bin_resols, xaxis) in enumerate(zip(all_bin_resols, all_xaxis)):
     plt.plot(z_bins[:-1], efficiency, label=labels[i], marker='.', color=colors[i % len(colors)])
 
 
