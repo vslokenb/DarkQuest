@@ -7,6 +7,7 @@ import awkward as ak
 from scipy.stats import binned_statistic
 
 # Directory paths (adjust these as needed)
+#################
 directories = [
     '/seaquest/users/vsloken/scratch/adjust_sagitta_samp/pro_m0_std/',
     '/seaquest/users/vsloken/scratch/adjust_sagitta_samp/pro_m50_std/',
@@ -37,6 +38,7 @@ def number_sort(file,directory):
     return None
 labels=[]
 # Loop through each directory
+##############
 total_index_errors = 0
 for directory in directories:
     print(directory)
@@ -47,30 +49,25 @@ for directory in directories:
     z_positions = []
     hit_count = []
     total_count = []
-#    truth = []
- #   reco = []
-  #  length = []
 
     # Process each file in the directory
+    ##################
     for file in sorted_files:
         try:
             f = uproot.open(file)
- #           print('opened')
-            hits = f['Events/dimuon_matched'].array()  # Number of hits per track
-#            print(hits[0])
+            hits = f['Events/dimuon_matched'].array()  # basically boolean if dimuon matched back to vertex
             #track_pz = f['Events/track_pz_st3'].array()  # Track momentum
             z_pos = f['Events/truthdimuon_z_vtx'].array()  # Vertex Z positions
             # Process each event in the file
+            ###################
             for i in range(len(z_pos)):
                 #                z_pos = vtx_z[i][0]
                 try:
                 #    z_pos = vtx_z[i][0]  # Get the z position for this event
                     # If the track passes the cut (track_pz < 120), it's a "hit" event
                     z_positions.append(z_pos[i][0])
-#                    print("hi", track_pz[i][0])
- #                   print("ho", hits[i])
-                    if hits[i] > 0:
-                        hit_count.append(1)
+                
+                    hit_count.append(1)
   #                      print('hit')
                     else:
                         hit_count.append(0)
