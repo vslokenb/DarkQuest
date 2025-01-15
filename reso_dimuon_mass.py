@@ -35,16 +35,10 @@ def number_sort(file,directory):
     if label:
         return int(label.group(1))
     return None
-#def compute_std_in_bins(truth, reco, bins):
-        # Calculate the difference between truth and reco
- #       diff = np.array(truth) - np.array(reco)
-        
-        # Use binned_statistic to compute the standard deviation of differences within bins
-  #      bin_resols, bin_edges, _ = binned_statistic(xaxis, diff, statistic='std', bins=bins)
-        
-   #     return bin_resols, bin_edges
+
 labels=[]
 # Loop through each directory
+#NOT MOST EFFICIENT CODE, BUT IT WORKS!
 total_index_errors = 0
 for directory in directories:
     print(directory)
@@ -57,46 +51,40 @@ for directory in directories:
     reco = []
     length = []
     xaxis=[]
-    bad=[]
     # Process each file in the directory
     for file in sorted_files:
         try:
             f = uproot.open(file)
-            track_pz = f['Events/dimuon_mass'].array()
-            truth_track_pz = f['Events/truthdimuon_mass'].array()
+            dimu_mass = f['Events/dimuon_mass'].array()
+            truth_dimu_mass = f['Events/truthdimuon_mass'].array()
             dimu_z = f['Events/truthdimuon_z_vtx'].array()
             match = f['Events/dimuon_matched'].array()
             # Loop over the events in the file
-            for i in range(len(track_pz)):
+            for i in range(len(dimu_mass)):
                 try:
-                    blah = truth_track_pz[i][0]/track_pz[i][0]#CHECL TO REMOVE NULL RECO PZ ENTRIES HEEHEE
-                    if track_pz[i][0] > 0 and match[i][0] == 1 and track_pz[i][0] < 120:
-                        truth.append(truth_track_pz[i][0])
-                        reco.append(track_pz[i][0])
+                    blah = truth_dimu_mass[i][0]/dimu_mass[i][0] #CHECK THAT THERE ARE REAL ENTRIES (maybe unnecessary but useful for debugging)
+                    if dimu_mass[i][0] > 0 and match[i][0] == 1 and dimu_mass[i][0] < 120: #Generic requirements that filter out "bad" events
+                        truth.append(truth_dimu_mass[i][0])
+                        reco.append(dimu_mass[i][0])
                         xaxis.append(dimu_z[i][0])
-                        if dimu_z[i][0] < 0:
-                            bad.append(1)
 #                    print(xaxis[i], reco[i], truth[i], ' z, reco mass, truth mass')
                 except IndexError:
                     length.append(1)
                     total_index_errors += 1
-        except: #Exception as e:
+        except: #Exception as e, this is ok as long as not all files
             print(f"Error processing file {file}")
 #        print(truth, ' truth mass')
  #       print(reco, ' reco mass')
   #      print(xaxis,' dimuon z vtx pos')
-    print(len(bad), 'how many events?')
+    
     z_bins = np.linspace(-300,600,51)
-    diff = abs(np.array(reco) - np.array(truth))
+    diff = abs(np.array(reco) - np.array(truth)) #using absolute difference instead of relative diff since mass and pz values not super large
     test.append(diff)
     test.append(xaxis)
-#    for i in range(len(xaxis)):
- #       if test[1][i] < 0:
-  #          print(test[0][i],' trouble region')
             
 #    print(len(test[0]), len(test[1]))
     # Compute resolution statistics for the current directory
-    bin_resols, bin_edges, _ = binned_statistic(xaxis, diff, statistic='std', bins=z_bins)
+    bin_resols, bin_edges, _ = binned_statistic(xaxis, diff, statistic='std', bins=z_bins) #WE USE STDEV OF DIFF AS RESOLUTION PARAMETER HERE
 
     # Calculate the bin centers for plotting
     axis = (bin_edges[:-1] + bin_edges[1:]) / 2
@@ -105,13 +93,12 @@ for directory in directories:
     all_bin_resols.append(bin_resols)
     all_xaxis.append(axis)
     labels.append(directory)
-    #plt.plot(xaxis,bin_resols, '-', label=directory)
 # Plot the results for all directories
 plt.figure(figsize=(8, 6))
 
 # Plot data for each directory
 colors = ['b', 'g', 'r', 'c']  # Colors for different directories
-#labels = ['0cm', '-50cm', '-100cm', '-200cm']  # Labels for the directories
+
 for i, (bin_resols, axis) in enumerate(zip(all_bin_resols, all_xaxis)):
     plt.plot(axis, bin_resols, label=labels[i], marker='o', color=colors[i % len(colors)])
 
