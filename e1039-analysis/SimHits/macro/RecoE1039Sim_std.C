@@ -46,7 +46,7 @@ using namespace std;
  * for Aprime signal, is_displaced to always set to True
  */
 
-int RecoE1039Sim_muongun(const int nevents = 200,
+int RecoE1039Sim_std(const int nevents = 200,
                  const int isim = 1,
                  const int igun = 0,
                  const double zvertex = -300, // target_coil_pos_z

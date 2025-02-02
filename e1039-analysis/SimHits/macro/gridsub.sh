@@ -21,18 +21,21 @@ if [ $reco_type == "displaced" ]; then
 	cd work
 	cmake ../src
 	make
+	cd ..
 	tar -czvf e1039_MC.tar.gz ../../../../DarkQuest_original_branch/core-inst --transform='s,^DarkQuest_original_branch/,,'
 	tar -czvf input_MC.tar.gz G4_EMCal.C RecoE1039Sim.C e1039_MC.tar.gz work data
 
 elif [ $reco_type == "standard" ]; then
+	echo "running standard tracking"
 	source ../../../../SpinQuest_official_branch/core-inst/this-e1039.sh
 	mkdir -p work
 	rm work/* -rf
 	cd work
-	cmake ../src
+	cmake ../src_std
 	make
+	cd ..
 	tar -czvf e1039_MC.tar.gz ../../../../SpinQuest_official_branch/core-inst --transform='s,^SpinQuest_official_branch/,,'
-	tar -czvf input_MC.tar.gz G4_EMCal.C RecoE1039Sim.C e1039_MC.tar.gz work data
+	tar -czvf input_MC.tar.gz G4_EMCal.C RecoE1039Sim_std.C e1039_MC.tar.gz work data
 fi
 
 #z_vtxs=($(seq -100 100 100))
