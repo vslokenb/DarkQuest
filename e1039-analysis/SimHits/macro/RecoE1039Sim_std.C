@@ -60,7 +60,8 @@ int RecoE1039Sim_muongun(const int nevents = 200,
                  std::string pileup_file = "/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root",
                  const int verbosity = 0,
 		 double EMCal_pos=1930,
-		 double st3_pos_dif=-100
+		 double st3_pos_dif=-100,
+		 std::string eval_name="eval.root"
 		 )
 {
     // input simulation
@@ -120,6 +121,8 @@ int RecoE1039Sim_muongun(const int nevents = 200,
         case 9: // pi0 gun
             particle_name = "pi0";
             break;
+	case 10:
+	    particle_name = "mu+";
         }
         std::cout << " " << particle_name << " GUN " << std::endl;
         break;
@@ -221,7 +224,18 @@ int RecoE1039Sim_muongun(const int nevents = 200,
     {
         rc->Print();
     }
-
+    if (st3_pos_dif<=-5 && st3_pos_dif>-75){
+	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER", 2.05);
+	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER", 1.72);
+    }
+    if (st3_pos_dif<=-75 && st3_pos_dif>-125){
+	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER", 2.17);
+	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER", 1.81);
+    }
+    if (st3_pos_dif<=-125 && st3_pos_dif>-225){
+	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER", 2.52);
+	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER", 2.11);
+    }
     // geometry information
     GeomSvc::UseDbSvc(true);
     GeomSvc *geom_svc = GeomSvc::instance();
@@ -292,7 +306,7 @@ int RecoE1039Sim_muongun(const int nevents = 200,
         //genp->set_vertex_distribution_mean(0.0, 0.0, 150.); // to set after FMAG: zvertex: 520
         //genp->set_vertex_distribution_width(10.0, 10.0, zvertex);    // for protons set to 10.0 in z?
         genp->set_vertex_distribution_mean(0.0, 0.0, zvertex); // to set after FMAG: zvertex: 520
-        genp->set_vertex_distribution_width(10.0, 10.0, 450.0);    // for protons set to 10.0 in z?
+        genp->set_vertex_distribution_width(10.0, 10.0, 10.0);    // for protons set to 10.0 in z?
         genp->set_vertex_size_function(PHG4SimpleEventGenerator::Uniform);
         genp->set_vertex_size_parameters(0.0, 0.0);
 
@@ -441,7 +455,7 @@ int RecoE1039Sim_muongun(const int nevents = 200,
     reco->set_evt_reducer_opt("none"); // if not provided, event reducer will be using JobOptsSvc to intialize; to turn off, set it to "none", for normal tracking, set to something like "aoc"
     // reco->set_evt_reducer_opt("r");              // if not provided, event reducer will be using JobOptsSvc to intialize; to turn off, set it to "none", for normal tracking, set to something like "aoc"
     reco->set_enable_eval(true);           // set to true to generate evaluation file which includes final track candidates
-    reco->set_eval_file_name("eval.root"); // evaluation filename
+    reco->set_eval_file_name(eval_name.c_str()); //evaluation filename
     reco->set_enable_eval_dst(true);       // set to true to include final track candidates in the DST tree
     reco->add_eval_list(3);                // include back partial tracks in eval tree for debuging
     reco->add_eval_list(2);                // include station-3+/- in eval tree for debuging
@@ -557,6 +571,7 @@ int RecoE1039Sim_muongun(const int nevents = 200,
     out->AddNode("G4TruthInfo");
     out->AddNode("PHG4HitContainer");
     out->AddNode("PHG4TruthInfoContainer");
+    out->AddNode("SQReco");
     if (save_dst)
     {
         se->registerOutputManager(out);

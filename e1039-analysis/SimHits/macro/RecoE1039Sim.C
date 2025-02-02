@@ -58,7 +58,10 @@ int RecoE1039Sim(const int nevents = 200,
                  std::string out_file = "output.root",
                  std::string out_path = "./",
                  std::string pileup_file = "/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root",
-                 const int verbosity = 0)
+                 const int verbosity = 0,
+		 double EMCal_pos=1930,
+		 double st3_pos_dif=-100
+		 )
 {
     // input simulation
     bool do_aprime_muon{false}, do_aprime_electron{false};
@@ -117,6 +120,8 @@ int RecoE1039Sim(const int nevents = 200,
         case 9: // pi0 gun
             particle_name = "pi0";
             break;
+	case 10:
+	    particle_name = "mu+";
         }
         std::cout << " " << particle_name << " GUN " << std::endl;
         break;
@@ -165,7 +170,7 @@ int RecoE1039Sim(const int nevents = 200,
     const bool do_absorber = true;
     const bool do_dphodo = true;
     const bool do_station1DC = false; // station-1 drift chamber should be turned off by default
-    const bool doEMCal = false;       // emcal turned off (for SpinQuest)
+    const bool doEMCal = true;       // emcal turned off (for SpinQuest)
 
     // SpinQuest constants
     const double target_coil_pos_z = -300;
@@ -175,12 +180,13 @@ int RecoE1039Sim(const int nevents = 200,
     // const double FMAGSTR = -1.054;
     // const double KMAGSTR = -0.951;
     const double FMAGSTR = -1.044;
-    const double KMAGSTR = 1.025;
+    const double KMAGSTR = -1.025;
 
     // SpinQuest reco constants
     recoConsts *rc = recoConsts::instance();
     rc->set_DoubleFlag("FMAGSTR", FMAGSTR);
     rc->set_DoubleFlag("KMAGSTR", KMAGSTR);
+    rc->set_IntFlag("RUNNUMBER", 6155);
     if (doEMCal)
     {
         rc->set_CharFlag(
@@ -231,6 +237,22 @@ int RecoE1039Sim(const int nevents = 200,
         geom_svc->printTable();
         std::cout << "done geometry printing" << std::endl;
     }
+    std::vector<std::string> St3detectors={"D3mU","D3mUp","D3mX","D3mXp","D3mV","D3mVp","D3pU","D3pUp","D3pX","D3pXp","D3pV","D3pVp","H3B","H3T"};
+    for (auto det : St3detectors){
+	    geom_svc->setDetectorZ0(det, geom_svc->getDetectorZ0(det)+st3_pos_dif);
+	    //int id=geom_svc->getDetectorID(det);
+	    //geom_svc->getPlane(id).z0=geom_svc->getDetectorZ0(det)+st3_pos_dif;
+	    //geom_svc->initWireLUT();
+	    std::cout<<"detector: "<<det<<" ID: "<<geom_svc->getDetectorID(det)<<" Z0: "<<geom_svc->getDetectorZ0(det)<<std::endl;
+    }
+    std::cout << "print geometry information" << std::endl;
+    geom_svc->printWirePosition();
+    std::cout << " align printing " << std::endl;
+    geom_svc->printAlignPar();
+    std::cout << " table printing" << std::endl;
+    geom_svc->printTable();
+    std::cout << "done geometry printing" << std::endl;
+
 
     // make the Server
     Fun4AllServer *se = Fun4AllServer::instance();
@@ -264,17 +286,17 @@ int RecoE1039Sim(const int nevents = 200,
     else if (do_gun)
     { // single particle gun
         PHG4SimpleEventGenerator *genp = new PHG4SimpleEventGenerator("PARTICLEGUN");
-        genp->add_particles(particle_name.c_str(), 1);
+	genp->add_particles(particle_name.c_str(), 1);
 
         genp->set_vertex_distribution_function(PHG4SimpleEventGenerator::Uniform,
                                                PHG4SimpleEventGenerator::Uniform,
                                                PHG4SimpleEventGenerator::Uniform);
-        genp->set_vertex_distribution_mean(10.0, 10.0, zvertex); // to set after FMAG: zvertex: 520
-        genp->set_vertex_distribution_width(10.0, 10.0, 0.0);    // for protons set to 10.0 in z?
+        genp->set_vertex_distribution_mean(0.0, 0.0, zvertex); // to set after FMAG: zvertex: 520
+        genp->set_vertex_distribution_width(10.0, 10.0,0);    // for protons set to 10.0 in z?
         genp->set_vertex_size_function(PHG4SimpleEventGenerator::Uniform);
         genp->set_vertex_size_parameters(0.0, 0.0);
 
-        genp->set_pxpypz_range(-.15, .15, -.15, .15, 10., 100.);
+        genp->set_pxpypz_range(-1.,1., -1., 1., 10., 100.);
 
         genp->Verbosity(verbosity);
         se->registerSubsystem(genp);
@@ -286,20 +308,22 @@ int RecoE1039Sim(const int nevents = 200,
         if (do_dy)
             pythia8->set_config_file("$DIR_TOP/data/pythiaconfig/phpythia8_DY.cfg");
         else
-            pythia8->set_config_file("$DIR_TOP/data/pythiaconfig/phpythia8_Jpsi.cfg");
+            pythia8->set_config_file("./data/pythiaconfig/phpythia8_Jpsi.cfg");
+	pythia8->set_vertex_distribution_function(PHHepMCGenHelper::Uniform,PHHepMCGenHelper::Uniform,PHHepMCGenHelper::Uniform,PHHepMCGenHelper::Uniform);
         pythia8->set_vertex_distribution_mean(0.0, 0.0, zvertex, 0);
+        pythia8->set_vertex_distribution_width(10.0,10.0,450.0,0);
         pythia8->set_embedding_id(1);
         se->registerSubsystem(pythia8);
 
         pythia8->set_trigger_AND();
         PHPy8ParticleTrigger *trigger_mup = new PHPy8ParticleTrigger();
         trigger_mup->AddParticles("-13");
-        trigger_mup->SetPzHighLow(120, 30);
+        trigger_mup->SetPzHighLow(120, 25);
         pythia8->register_trigger(trigger_mup);
 
         PHPy8ParticleTrigger *trigger_mum = new PHPy8ParticleTrigger();
         trigger_mum->AddParticles("13");
-        trigger_mum->SetPzHighLow(120, 30);
+        trigger_mum->SetPzHighLow(120, 25);
         pythia8->register_trigger(trigger_mum);
 
         HepMCNodeReader *hr = new HepMCNodeReader();
@@ -374,7 +398,7 @@ int RecoE1039Sim(const int nevents = 200,
                             "SQ_Scintillator", 0);
     if (doEMCal)
     {
-        SetupEMCal(g4Reco, "EMCal", 0., 0., 1930.);
+        SetupEMCal(g4Reco, "EMCal", 0., 0., EMCal_pos);
     }
     se->registerSubsystem(g4Reco);
 
@@ -538,9 +562,8 @@ int RecoE1039Sim(const int nevents = 200,
     {
         se->registerOutputManager(out);
     }
-
+    
     se->run(nevents);
-
     // export the geometry
     // PHGeomUtility::ExportGeomtry(se->topNode(),"geom.root");
 
