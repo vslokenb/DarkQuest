@@ -1,7 +1,7 @@
-./gridsub.sh testmms 1000 1930 -200 10 mu- standard
-./gridsub.sh testmps 1000 1930 -200 10 mu+ standard
-./gridsub.sh testjps 1000 1930 -200 10 JPsi standard
-./gridsub.sh testmmd 1000 1930 -200 10 mu- displaced
-./gridsub.sh testmpd 1000 1930 -200 10 mu+ displaced
-./gridsub.sh testjpd 1000 1930 -200 10 JPsi displaced
+./gridsub.sh testv13mms mu- standard 1000 1930 -200 10
+./gridsub.sh testv13mps mu+ standard 1000 1930 -200 10
+./gridsub.sh testv13jps JPsi standard 1000 1930 -200 10
+./gridsub.sh testv13mmd mu- displaced 1000 1930 -200 10
+./gridsub.sh testv13mpd mu+ displaced 1000 1930 -200 10
+./gridsub.sh testv13jpd JPsi displaced 1000 1930 -200 10
 

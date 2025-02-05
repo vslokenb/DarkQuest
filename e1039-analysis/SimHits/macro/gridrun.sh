@@ -4,11 +4,13 @@ ls /
 #ls /scratch
 #ls -a /usr
 #ls /cvmfs
-n_events=$1
-z_vtx=$2
-EMCal_pos=$3
-St3_pos_dif=$4
-particle_type=$5
+particle_type=$1
+reco_type=$2
+n_events=$3
+z_vtx_min=$4
+z_vtx_max=$5
+EMCal_pos=$6
+St3_pos_dif=$7
 if [ -z ${CONDOR_DIR_INPUT+x} ]; then
 	CONDOR_DIR_INPUT=./input;
 	echo "CONDOR_DIR_INPUT is initiallized as $CONDOR_DIR_INPUT"
@@ -40,18 +42,18 @@ fi
 
 if [ $particle_type == "mu-" ]; then
 
-	time root -b -q RecoE1039Sim.C\($n_events,3,1,$z_vtx,true,true,false,\"\",\"\",\"reco_mu-_"$EMCal_pos"_"$St3_pos_dif".root\",\"./\",\"/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root\",0,$EMCal_pos,$St3_pos_dif\)
-	echo RecoE1039Sim.C\($n_events,3,1,$z_vtx,true,true,false,\"\",\"\",\"reco_mu-_$z_vtx.root\",\"./\",\"/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root\",0,$EMCal_pos,$St3_pos_dif\)
+	time root -b -q RecoE1039Sim.C\($n_events,3,1,$z_vtx_min,$z_vtx_max,true,true,false,\"\",\"\",\"reco_mu-_"$reco_type"_"$EMCal_pos"_"$St3_pos_dif".root\",\"./\",\"/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root\",0,$EMCal_pos,$St3_pos_dif\)
+	echo RecoE1039Sim.C\($n_events,3,1,$z_vtx_min,$z_vtx_max,true,true,false,\"\",\"\",\"reco_mu-_"$reco_type"_$z_vtx.root\",\"./\",\"/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root\",0,$EMCal_pos,$St3_pos_dif\)
 
 elif [ $particle_type == "mu+" ]; then
 
-	time root -b -q RecoE1039Sim.C\($n_events,3,10,$z_vtx,true,true,false,\"\",\"\",\"reco_mu+_"$EMCal_pos"_"$St3_pos_dif".root\",\"./\",\"/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root\",0,$EMCal_pos,$St3_pos_dif\)
-	echo RecoE1039Sim.C\($n_events,3,10,$z_vtx,true,true,false,\"\",\"\",\"reco_mu+_$z_vtx.root\",\"./\",\"/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root\",0,$EMCal_pos,$St3_pos_dif\)
+	time root -b -q RecoE1039Sim.C\($n_events,3,10,$z_vtx_min,$z_vtx_max,true,true,false,\"\",\"\",\"reco_mu+_"$reco_type"_"$EMCal_pos"_"$St3_pos_dif".root\",\"./\",\"/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root\",0,$EMCal_pos,$St3_pos_dif\)
+	echo RecoE1039Sim.C\($n_events,3,10,$z_vtx_min,$z_vtx_max,true,true,false,\"\",\"\",\"reco_mu+_"$reco_type"_$z_vtx.root\",\"./\",\"/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root\",0,$EMCal_pos,$St3_pos_dif\)
 
 elif [ $particle_type == "JPsi" ]; then
 
-	time root -b -q RecoE1039Sim.C\($n_events,5,1,$z_vtx,true,true,false,\"\",\"\",\"reco_JPsi_"$EMCal_pos"_"$St3_pos_dif".root\",\"./\",\"/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root\",0,$EMCal_pos,$St3_pos_dif\)
-	echo RecoE1039Sim.C\($n_events,5,1,$z_vtx,true,true,false,\"\",\"\",\"reco_JPsi_$z_vtx.root\",\"./\",\"/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root\",0,$EMCal_pos,$St3_pos_dif\)
+	time root -b -q RecoE1039Sim.C\($n_events,5,1,$z_vtx_min,$z_vtx_max,true,true,false,\"\",\"\",\"reco_JPsi_"$reco_type"_"$EMCal_pos"_"$St3_pos_dif".root\",\"./\",\"/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root\",0,$EMCal_pos,$St3_pos_dif\)
+	echo RecoE1039Sim.C\($n_events,5,1,$z_vtx_min,$z_vtx_max,true,true,false,\"\",\"\",\"reco_JPsi_"$reco_type"_$z_vtx.root\",\"./\",\"/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root\",0,$EMCal_pos,$St3_pos_dif\)
 
 fi
 

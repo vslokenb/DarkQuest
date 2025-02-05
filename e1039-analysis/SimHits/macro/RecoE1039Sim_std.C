@@ -49,7 +49,8 @@ using namespace std;
 int RecoE1039Sim_std(const int nevents = 200,
                  const int isim = 1,
                  const int igun = 0,
-                 const double zvertex = -300, // target_coil_pos_z
+		 const double zvertex_min = -300, // target_coil_pos_z
+                 const double zvertex_max = -300, // target_coil_pos_z
                  const bool do_displaced_tracking = true,
                  const bool do_analysis = true,
                  bool run_pileup = false,
@@ -187,7 +188,7 @@ int RecoE1039Sim_std(const int nevents = 200,
     recoConsts *rc = recoConsts::instance();
     rc->set_DoubleFlag("FMAGSTR", FMAGSTR);
     rc->set_DoubleFlag("KMAGSTR", KMAGSTR);
-    rc->set_IntFlag("RUNNUMBER", 6155);
+    rc->set_IntFlag("RUNNUMBER", 6);
     if (doEMCal)
     {
         rc->set_CharFlag(
@@ -305,8 +306,8 @@ int RecoE1039Sim_std(const int nevents = 200,
                                                PHG4SimpleEventGenerator::Uniform);
         //genp->set_vertex_distribution_mean(0.0, 0.0, 150.); // to set after FMAG: zvertex: 520
         //genp->set_vertex_distribution_width(10.0, 10.0, zvertex);    // for protons set to 10.0 in z?
-        genp->set_vertex_distribution_mean(0.0, 0.0, zvertex); // to set after FMAG: zvertex: 520
-        genp->set_vertex_distribution_width(10.0, 10.0, 10.0);    // for protons set to 10.0 in z?
+        genp->set_vertex_distribution_mean(0.0, 0.0, (zvertex_max+zvertex_min)/2); // to set after FMAG: zvertex: 520
+        genp->set_vertex_distribution_width(10.0, 10.0, (zvertex_max-zvertex_min)/2);    // for protons set to 10.0 in z?
         genp->set_vertex_size_function(PHG4SimpleEventGenerator::Uniform);
         genp->set_vertex_size_parameters(0.0, 0.0);
 
@@ -324,8 +325,8 @@ int RecoE1039Sim_std(const int nevents = 200,
         else
             pythia8->set_config_file("./data/pythiaconfig/phpythia8_Jpsi.cfg");
 	pythia8->set_vertex_distribution_function(PHHepMCGenHelper::Uniform,PHHepMCGenHelper::Uniform,PHHepMCGenHelper::Uniform,PHHepMCGenHelper::Uniform);
-        pythia8->set_vertex_distribution_mean(0.0, 0.0, zvertex, 0);
-        pythia8->set_vertex_distribution_width(10.0,10.0,450.0,0);
+        pythia8->set_vertex_distribution_mean(0.0, 0.0, (zvertex_max+zvertex_min)/2, 0);
+        pythia8->set_vertex_distribution_width(10.0,10.0,(zvertex_max-zvertex_min)/2,0);
         pythia8->set_embedding_id(1);
         se->registerSubsystem(pythia8);
 

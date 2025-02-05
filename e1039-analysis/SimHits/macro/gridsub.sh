@@ -1,11 +1,11 @@
 #!/bin/bash
 work_dir=$1
-n_events=$2
-EMCal_pos=$3
-St3_pos_dif=$4
-n_jobs=$5
-particle_type=$6
-reco_type=$7
+particle_type=$2
+reco_type=$3
+n_events=$4
+EMCal_pos=$5
+St3_pos_dif=$6
+n_jobs=$7
 work_dir=/pnfs/e1039/scratch/users/$USER/MUONGUN/$work_dir
 echo $work_dir
 mkdir -p $work_dir
@@ -55,7 +55,7 @@ do
 	CMD+=" -L $job_dir/log_gridrun.txt"
 	CMD+=" -f $job_dir/input_MC.tar.gz"
 	CMD+=" -d OUTPUT $job_dir/out"
-	CMD+=" file://$job_dir/gridrun.sh $n_events 150 $EMCal_pos $St3_pos_dif $particle_type"
+	CMD+=" file://$job_dir/gridrun.sh $particle_type $reco_type $n_events -300 600 $EMCal_pos $St3_pos_dif"
 	echo $CMD
 	unbuffer $CMD |& tee $job_dir/log_jobsub_submit.txt
 	RET_SUB=${PIPESTATUS[0]}
