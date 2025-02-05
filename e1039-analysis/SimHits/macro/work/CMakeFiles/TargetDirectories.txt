@@ -1,8 +1,0 @@
-/seaquest/users/xinlongl/projects/debugstd/DarkQuest/e1039-analysis/SimHits/macro/work/CMakeFiles/sim_ana.dir
-/seaquest/users/xinlongl/projects/debugstd/DarkQuest/e1039-analysis/SimHits/macro/work/CMakeFiles/install_pcm.dir
-/seaquest/users/xinlongl/projects/debugstd/DarkQuest/e1039-analysis/SimHits/macro/work/CMakeFiles/edit_cache.dir
-/seaquest/users/xinlongl/projects/debugstd/DarkQuest/e1039-analysis/SimHits/macro/work/CMakeFiles/rebuild_cache.dir
-/seaquest/users/xinlongl/projects/debugstd/DarkQuest/e1039-analysis/SimHits/macro/work/CMakeFiles/list_install_components.dir
-/seaquest/users/xinlongl/projects/debugstd/DarkQuest/e1039-analysis/SimHits/macro/work/CMakeFiles/install.dir
-/seaquest/users/xinlongl/projects/debugstd/DarkQuest/e1039-analysis/SimHits/macro/work/CMakeFiles/install/local.dir
-/seaquest/users/xinlongl/projects/debugstd/DarkQuest/e1039-analysis/SimHits/macro/work/CMakeFiles/install/strip.dir
