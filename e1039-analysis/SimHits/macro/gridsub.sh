@@ -1,7 +1,7 @@
 #!/bin/bash
 work_dir=$1
-particle_type=$2
-reco_type=$3
+reco_type=$2
+particle_type=$3
 n_events=$4
 EMCal_pos=$5
 St3_pos_dif=$6
@@ -55,7 +55,7 @@ do
 	CMD+=" -L $job_dir/log_gridrun.txt"
 	CMD+=" -f $job_dir/input_MC.tar.gz"
 	CMD+=" -d OUTPUT $job_dir/out"
-	CMD+=" file://$job_dir/gridrun.sh $particle_type $reco_type $n_events -300 600 $EMCal_pos $St3_pos_dif"
+	CMD+=" file://$job_dir/gridrun.sh $reco_type $particle_type $n_events -300 600 $EMCal_pos $St3_pos_dif"
 	echo $CMD
 	unbuffer $CMD |& tee $job_dir/log_jobsub_submit.txt
 	RET_SUB=${PIPESTATUS[0]}
