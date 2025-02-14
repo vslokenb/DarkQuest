@@ -29,14 +29,14 @@ if [ $reco_type == "displaced" ]; then
 
 elif [ $reco_type == "standard" ]; then
 	echo "running standard tracking"
-	source ../../../../SpinQuest_official_branch/core-inst/this-e1039.sh
+	source ../../../../SpinQuest_upgrade_sagitta/core-inst/this-e1039.sh
 	mkdir -p work
 	rm work/* -rf
 	cd work
 	cmake ../src_std
 	make
 	cd ..
-	tar -czvf e1039_MC.tar.gz ../../../../SpinQuest_official_branch/core-inst --transform='s,^SpinQuest_official_branch/,,'
+	tar -czvf e1039_MC.tar.gz ../../../../SpinQuest_upgrade_sagitta/core-inst --transform='s,^SpinQuest_upgrade_sagitta/,,'
 	tar -czvf input_MC.tar.gz G4_EMCal.C RecoE1039Sim_std.C e1039_MC.tar.gz work data
 fi
 

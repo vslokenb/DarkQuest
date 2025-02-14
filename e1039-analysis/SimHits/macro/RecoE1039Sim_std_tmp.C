@@ -46,7 +46,7 @@ using namespace std;
  * for Aprime signal, is_displaced to always set to True
  */
 
-int RecoE1039Sim_std(const int nevents = 200,
+int RecoE1039Sim_std_tmp(const int nevents = 200,
                  const int isim = 1,
                  const int igun = 0,
 		 const double zvertex_min = -300, // target_coil_pos_z
@@ -173,7 +173,6 @@ int RecoE1039Sim_std(const int nevents = 200,
     const bool do_dphodo = true;
     const bool do_station1DC = false; // station-1 drift chamber should be turned off by default
     const bool doEMCal = false;       // emcal turned off (for SpinQuest)
-    const bool do_DC_emulation = true;
 
     // SpinQuest constants
     const double target_coil_pos_z = -300;
@@ -190,9 +189,6 @@ int RecoE1039Sim_std(const int nevents = 200,
     rc->set_DoubleFlag("FMAGSTR", FMAGSTR);
     rc->set_DoubleFlag("KMAGSTR", KMAGSTR);
     rc->set_IntFlag("RUNNUMBER", 6);
-    
-    //rc->set_IntFlag("MaxHitsDC0" , 1);//if you don't want reconstruction, then uncomment this line
-
     if (doEMCal)
     {
         rc->set_CharFlag(
@@ -229,120 +225,17 @@ int RecoE1039Sim_std(const int nevents = 200,
     {
         rc->Print();
     }
-    if (st3_pos_dif > -75)
-    {
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3p", 1.93);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3p", 2.04);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3p", 1.82);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3m", 1.99);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3m", 2.11);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3m", 1.89);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_X_DC3p", 1.70);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_U_DC3p", 1.78);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_V_DC3p", 1.62);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_X_DC3m", 1.75);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_U_DC3m", 1.84);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_V_DC3m", 1.66);
-	    
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_X_DC3p", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_U_DC3p", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_V_DC3p", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_X_DC3m", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_U_DC3m", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_V_DC3m", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_X_DC3p", 0.3);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_U_DC3p", 0.3);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_V_DC3p", 0.3);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_X_DC3m", 0.3);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_U_DC3m", 0.3);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_V_DC3m", 0.3);
-	    /*
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3p", 1.85);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3p", 1.85);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3p", 1.85);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3m", 1.85);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3m", 1.85);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3m", 1.85);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_X_DC3p", 1.5);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_U_DC3p", 1.5);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_V_DC3p", 1.5);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_X_DC3m", 1.5);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_U_DC3m", 1.5);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_V_DC3m", 1.5);
-	    
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3p", rc->get_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3p")-0.12);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3p", rc->get_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3p")-0.12);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3p", rc->get_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3p")-0.12);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3m", rc->get_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3m")-0.12);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3m", rc->get_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3m")-0.12);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3m", rc->get_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3m")-0.12);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_X_DC3p", rc->get_DoubleFlag("SAGITTA_DUMP_CENTER_X_DC3p")-0.23);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_U_DC3p", rc->get_DoubleFlag("SAGITTA_DUMP_CENTER_U_DC3p")-0.23);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_V_DC3p", rc->get_DoubleFlag("SAGITTA_DUMP_CENTER_V_DC3p")-0.23);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_X_DC3m", rc->get_DoubleFlag("SAGITTA_DUMP_CENTER_X_DC3m")-0.23);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_U_DC3m", rc->get_DoubleFlag("SAGITTA_DUMP_CENTER_U_DC3m")-0.23);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_V_DC3m", rc->get_DoubleFlag("SAGITTA_DUMP_CENTER_V_DC3m")-0.23);
-		*/
+    if (st3_pos_dif<=-5 && st3_pos_dif>-75){
+	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER", 2.05);
+	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER", 1.72);
     }
     if (st3_pos_dif<=-75 && st3_pos_dif>-125){
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3p", 2.14);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3p", 2.28);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3p", 2.00);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3m", 2.24);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3m", 2.40);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3m", 2.09);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_X_DC3p", 1.87);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_U_DC3p", 1.97);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_V_DC3p", 1.76);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_X_DC3m", 1.95);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_U_DC3m", 2.08);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_V_DC3m", 1.84);
-	    
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_X_DC3p", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_U_DC3p", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_V_DC3p", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_X_DC3m", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_U_DC3m", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_V_DC3m", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_X_DC3p", 0.3);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_U_DC3p", 0.3);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_V_DC3p", 0.3);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_X_DC3m", 0.3);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_U_DC3m", 0.3);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_V_DC3m", 0.3);
-	    
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER", 2.18);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER", 1.91);
+	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER", 2.17);
+	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER", 1.81);
     }
     if (st3_pos_dif<=-125 && st3_pos_dif>-225){
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3p", 2.45);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3p", 2.65);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3p", 2.27);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3m", 2.61);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3m", 2.84);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3m", 2.40);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_X_DC3p", 2.13);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_U_DC3p", 2.30);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_V_DC3p", 1.99);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_X_DC3m", 2.27);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_U_DC3m", 2.47);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_V_DC3m", 2.10);
-	    
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_X_DC3p", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_U_DC3p", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_V_DC3p", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_X_DC3m", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_U_DC3m", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_TARGET_WIDTH_V_DC3m", 0.25);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_X_DC3p", 0.3);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_U_DC3p", 0.3);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_V_DC3p", 0.3);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_X_DC3m", 0.3);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_U_DC3m", 0.3);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_WIDTH_V_DC3m", 0.3);
-	    
-	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER", 2.54);
-	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER", 2.21);
+	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER", 2.52);
+	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER", 2.11);
     }
     // geometry information
     GeomSvc::UseDbSvc(true);
@@ -418,7 +311,7 @@ int RecoE1039Sim_std(const int nevents = 200,
         genp->set_vertex_size_function(PHG4SimpleEventGenerator::Uniform);
         genp->set_vertex_size_parameters(0.0, 0.0);
 
-        genp->set_pxpypz_range(-5.,5., -5., 5., 10., 100.);
+        genp->set_pxpypz_range(-1.,1., -1., 1., 10., 100.);
 
         genp->Verbosity(verbosity);
         se->registerSubsystem(genp);
@@ -433,7 +326,7 @@ int RecoE1039Sim_std(const int nevents = 200,
             pythia8->set_config_file("./data/pythiaconfig/phpythia8_Jpsi.cfg");
 	pythia8->set_vertex_distribution_function(PHHepMCGenHelper::Uniform,PHHepMCGenHelper::Uniform,PHHepMCGenHelper::Uniform,PHHepMCGenHelper::Uniform);
         pythia8->set_vertex_distribution_mean(0.0, 0.0, (zvertex_max+zvertex_min)/2, 0);
-        pythia8->set_vertex_distribution_width(0.0,0.0,(zvertex_max-zvertex_min)/2,0);
+        pythia8->set_vertex_distribution_width(10.0,10.0,(zvertex_max-zvertex_min)/2,0);
         pythia8->set_embedding_id(1);
         se->registerSubsystem(pythia8);
 
@@ -552,13 +445,6 @@ int RecoE1039Sim_std(const int nevents = 200,
         se->registerSubsystem(geom_acc);
     }
 
-    if (do_DC_emulation)
-    {
-	SQChamberRealization* cal_cr=new SQChamberRealization();
-        cal_cr->SetChamEff(0.96,0.96,0.96,0.96,0.96);
-        cal_cr->FixChamReso(0.04,0.04,0.04,0.04,0.04);
-        se->registerSubsystem(cal_cr);
-    }
     // tracking module
     SQReco *reco = new SQReco();
     reco->Verbosity(verbosity);
