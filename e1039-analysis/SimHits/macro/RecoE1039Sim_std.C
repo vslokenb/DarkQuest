@@ -53,7 +53,9 @@ int RecoE1039Sim_std(const int nevents = 200,
                  const double zvertex_max = -300, // target_coil_pos_z
                  const bool do_displaced_tracking = true,
                  const bool do_analysis = true,
-                 bool run_pileup = false,
+                 bool do_DC_emulation = false,
+		 bool run_pileup = false,
+    		bool do_data_embedding = false,
                  std::string input_file = "Brem_0.550000_z500_600_eps_-5.4",
                  std::string input_path = "$HepMC_DIR/",
                  std::string out_file = "output.root",
@@ -65,6 +67,9 @@ int RecoE1039Sim_std(const int nevents = 200,
 		 std::string eval_name="eval.root"
 		 )
 {
+    if (run_pileup && do_data_embedding)
+	    return 0;
+
     // input simulation
     bool do_aprime_muon{false}, do_aprime_electron{false};
     bool do_gun{false};
@@ -173,7 +178,6 @@ int RecoE1039Sim_std(const int nevents = 200,
     const bool do_dphodo = true;
     const bool do_station1DC = false; // station-1 drift chamber should be turned off by default
     const bool doEMCal = false;       // emcal turned off (for SpinQuest)
-    const bool do_DC_emulation = true;
 
     // SpinQuest constants
     const double target_coil_pos_z = -300;
@@ -231,6 +235,8 @@ int RecoE1039Sim_std(const int nevents = 200,
     }
     if (st3_pos_dif > -75)
     {
+	    rc->set_DoubleFlag("ST3_HM_scaling_factor", 1.0);
+	    
 	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3p", 1.93);
 	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3p", 2.04);
 	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3p", 1.82);
@@ -285,6 +291,8 @@ int RecoE1039Sim_std(const int nevents = 200,
 		*/
     }
     if (st3_pos_dif<=-75 && st3_pos_dif>-125){
+	    rc->set_DoubleFlag("ST3_HM_scaling_factor", 1.517);
+	    
 	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3p", 2.14);
 	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3p", 2.28);
 	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3p", 2.00);
@@ -315,6 +323,8 @@ int RecoE1039Sim_std(const int nevents = 200,
 	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER", 1.91);
     }
     if (st3_pos_dif<=-125 && st3_pos_dif>-225){
+	    rc->set_DoubleFlag("ST3_HM_scaling_factor", 2.034);
+	    
 	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3p", 2.45);
 	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3p", 2.65);
 	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3p", 2.27);
@@ -344,7 +354,22 @@ int RecoE1039Sim_std(const int nevents = 200,
 	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER", 2.54);
 	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER", 2.21);
     }
-    // geometry information
+	    /*rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3p", 3);
+	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3p", 3);
+	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3p", 3);
+	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_X_DC3m", 3);
+	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_U_DC3m", 3);
+	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER_V_DC3m", 3);
+	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_X_DC3p", 1);
+	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_U_DC3p", 1);
+	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_V_DC3p", 1);
+	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_X_DC3m", 1);
+	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_U_DC3m", 1);
+	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER_V_DC3m", 1);
+	    rc->set_DoubleFlag("SAGITTA_TARGET_CENTER", 3);
+	    rc->set_DoubleFlag("SAGITTA_DUMP_CENTER", 1);*/
+	//rc->set_BoolFlag("REQUIRE_MUID", false);
+	    // geometry information
     GeomSvc::UseDbSvc(true);
     GeomSvc *geom_svc = GeomSvc::instance();
     if (isDEBUG)
@@ -365,10 +390,10 @@ int RecoE1039Sim_std(const int nevents = 200,
 	    //geom_svc->initWireLUT();
 	    std::cout<<"detector: "<<det<<" ID: "<<geom_svc->getDetectorID(det)<<" Z0: "<<geom_svc->getDetectorZ0(det)<<std::endl;
     }
-    std::cout << "print geometry information" << std::endl;
-    geom_svc->printWirePosition();
-    std::cout << " align printing " << std::endl;
-    geom_svc->printAlignPar();
+    //std::cout << "print geometry information" << std::endl;
+    //geom_svc->printWirePosition();
+    //std::cout << " align printing " << std::endl;
+    //geom_svc->printAlignPar();
     std::cout << " table printing" << std::endl;
     geom_svc->printTable();
     std::cout << "done geometry printing" << std::endl;
@@ -559,6 +584,15 @@ int RecoE1039Sim_std(const int nevents = 200,
         cal_cr->FixChamReso(0.04,0.04,0.04,0.04,0.04);
         se->registerSubsystem(cal_cr);
     }
+    if (do_data_embedding){
+     	DoEmbedding *do_emb=new DoEmbedding();
+     	do_emb->Verbosity();
+	std::cout<<pileup_file<<std::endl;
+     	do_emb->AddEmbDataFile(pileup_file.c_str());
+     	int n_evt_emb=do_emb->GetNumEmbEvents();
+     	se->registerSubsystem(do_emb);
+    }
+
     // tracking module
     SQReco *reco = new SQReco();
     reco->Verbosity(verbosity);

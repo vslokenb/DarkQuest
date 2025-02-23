@@ -53,7 +53,9 @@ int RecoE1039Sim(const int nevents = 200,
                  const double zvertex_max = -300, // target_coil_pos_z
                  const bool do_displaced_tracking = true,
                  const bool do_analysis = true,
-                 bool run_pileup = false,
+                 bool do_DC_emulation = false,
+		 bool run_pileup = false,
+    		bool do_data_embedding = false,
                  std::string input_file = "Brem_0.550000_z500_600_eps_-5.4",
                  std::string input_path = "$HepMC_DIR/",
                  std::string out_file = "output.root",
@@ -293,11 +295,11 @@ int RecoE1039Sim(const int nevents = 200,
                                                PHG4SimpleEventGenerator::Uniform,
                                                PHG4SimpleEventGenerator::Uniform);
         genp->set_vertex_distribution_mean(0.0, 0.0, (zvertex_max+zvertex_min)/2); // to set after FMAG: zvertex: 520
-        genp->set_vertex_distribution_width(10.0, 10.0,(zvertex_max-zvertex_min)/2);    // for protons set to 10.0 in z?
+        genp->set_vertex_distribution_width(0.0, 0.0,(zvertex_max-zvertex_min)/2);    // for protons set to 10.0 in z?
         genp->set_vertex_size_function(PHG4SimpleEventGenerator::Uniform);
         genp->set_vertex_size_parameters(0.0, 0.0);
 
-        genp->set_pxpypz_range(-1.,1., -1., 1., 10., 100.);
+        genp->set_pxpypz_range(-5.,5., -5., 5., 10., 100.);
 
         genp->Verbosity(verbosity);
         se->registerSubsystem(genp);
@@ -312,7 +314,7 @@ int RecoE1039Sim(const int nevents = 200,
             pythia8->set_config_file("./data/pythiaconfig/phpythia8_Jpsi.cfg");
 	pythia8->set_vertex_distribution_function(PHHepMCGenHelper::Uniform,PHHepMCGenHelper::Uniform,PHHepMCGenHelper::Uniform,PHHepMCGenHelper::Uniform);
         pythia8->set_vertex_distribution_mean(0.0, 0.0, (zvertex_max+zvertex_min)/2, 0);
-        pythia8->set_vertex_distribution_width(10.0,10.0,(zvertex_max-zvertex_min)/2,0);
+        pythia8->set_vertex_distribution_width(0.0,0.0,(zvertex_max-zvertex_min)/2,0);
         pythia8->set_embedding_id(1);
         se->registerSubsystem(pythia8);
 
@@ -431,6 +433,22 @@ int RecoE1039Sim(const int nevents = 200,
         // geom_acc->SetNumOfH1EdgeElementsExcluded(4);
         se->registerSubsystem(geom_acc);
     }
+    if (do_DC_emulation)
+    {
+	SQChamberRealization* cal_cr=new SQChamberRealization();
+        cal_cr->SetChamEff(0.96,0.96,0.96,0.96,0.96);
+        cal_cr->FixChamReso(0.04,0.04,0.04,0.04,0.04);
+        se->registerSubsystem(cal_cr);
+    }
+    if (do_data_embedding){
+     	DoEmbedding *do_emb=new DoEmbedding();
+     	do_emb->Verbosity();
+	std::cout<<pileup_file<<std::endl;
+     	do_emb->AddEmbDataFile(pileup_file.c_str());
+     	int n_evt_emb=do_emb->GetNumEmbEvents();
+     	se->registerSubsystem(do_emb);
+    }
+
 
     // tracking module
     SQReco *reco = new SQReco();

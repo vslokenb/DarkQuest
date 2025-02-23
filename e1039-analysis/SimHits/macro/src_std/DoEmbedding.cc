@@ -52,15 +52,27 @@ int DoEmbedding::Init(PHCompositeNode* topNode)
 
 int DoEmbedding::InitRun(PHCompositeNode* topNode)
 {
+/*
   mi_evt     = findNode::getClass<SQEvent       >(topNode, "SQEvent");
   mi_vec_hit = findNode::getClass<SQHitVector   >(topNode, "SQHitVector");
   if (!mi_evt || !mi_vec_hit) {
     cout << PHWHERE << ":  Cannot find SQEvent and/or SQHitVector." << endl;
     return Fun4AllReturnCodes::ABORTEVENT;
   }
+  */
 
   PHNodeIterator iter(topNode);
   PHCompositeNode *dstNode = dynamic_cast<PHCompositeNode*>(iter.findFirst("PHCompositeNode", "DST"));
+  mi_evt     = findNode::getClass<SQEvent       >(topNode, "SQEvent");
+  if (! mi_evt) {
+    mi_evt = new SQEvent_v1();
+    dstNode->addNode(new PHIODataNode<PHObject>(mi_evt, "SQEvent", "PHObject"));
+  }
+mi_vec_hit = findNode::getClass<SQHitVector   >(topNode, "SQHitVector");
+  if (! mi_vec_hit) {
+    mi_vec_hit = new SQHitVector_v1();
+    dstNode->addNode(new PHIODataNode<PHObject>(mi_vec_hit, "SQHitVector", "PHObject"));
+  }
   mi_sim_evt = findNode::getClass<SQMCEvent>(topNode, "SQMCEvent");
   if (! mi_sim_evt) {
     mi_sim_evt = new SQMCEvent_v1();
@@ -122,6 +134,9 @@ int DoEmbedding::process_event(PHCompositeNode* topNode)
   if (Verbosity() > 9) cout << "  N of hits to be embedded: " << m_emb_sqvec_hit->size() << endl;
   for (SQHitVector::Iter it = m_emb_sqvec_hit->begin(); it != m_emb_sqvec_hit->end(); it++) {
     SQHit* hit_emb = *it;
+    //std::cout<<"TEST EMBEDDING" << hit_emb->get_detector_id() << " " << hit_emb->get_element_id() << " "<<hit_emb->get_tdc_time() << " "<<hit_emb->get_drift_distance() << " "<< hit_emb->get_pos()<<" "<< hit_emb->get_truth_z()<<std::endl;
+if ((hit_emb->get_detector_id() >= 19 && hit_emb->get_detector_id() <= 30) || (hit_emb->get_detector_id() >= 39 && hit_emb->get_detector_id() <= 40)) 
+	    continue;
     hit_emb->set_hit_id  (hit_emb->get_hit_id  () + m_hit_id_shift);
     hit_emb->set_track_id(hit_emb->get_track_id() + m_trk_id_shift);
     mi_vec_hit->push_back(hit_emb);

@@ -2,12 +2,15 @@
 work_dir=$1
 reco_type=$2
 particle_type=$3
-n_events=$4
-EMCal_pos=$5
-St3_pos_dif=$6
-z_vtx_min=$7
-z_vtx_max=$8
-n_jobs=$9
+do_emul=$4
+do_MC_embedding=$5
+do_data_embedding=$6
+n_events=$7
+EMCal_pos=$8
+St3_pos_dif=$9
+z_vtx_min=${10}
+z_vtx_max=${11}
+n_jobs=${12}
 work_dir=/pnfs/e1039/scratch/users/$USER/MUONGUN/$work_dir
 echo $work_dir
 mkdir -p $work_dir
@@ -45,19 +48,34 @@ z_vtxs=($(seq 1 1 $n_jobs))
 
 for dir_ind in ${z_vtxs[@]}
 do
+	if [ $do_MC_embedding == "true" ]; then
+		rndm=$((RANDOM % 100))
+		cp /seaquest/users/xinlongl/semi-persistent/SIM_EMBEDDING/MC_Embedding_$rndm.root Embedding.root
+		tar -czvf input_ALL.tar.gz input_MC.tar.gz Embedding.root
+	elif [ $do_data_embedding == "true" ]; then
+		emb_ind=$(( dir_ind % 160 + 1 ))
+		if [ $emb_ind == 41 ]; then
+			continue
+		fi
+		emb_dir=$(printf "%04d" "$emb_ind")
+		cp /pnfs/e1039/persistent/users/kenichi/data_emb_e906/$emb_dir/embedding_data.root Embedding.root
+		tar -czvf input_ALL.tar.gz input_MC.tar.gz Embedding.root
+	else
+		tar -czvf input_ALL.tar.gz input_MC.tar.gz
+	fi
 	job_dir=$work_dir/$dir_ind
 	#exit
 	mkdir -p $job_dir
-	cp input_MC.tar.gz $job_dir
+	cp input_ALL.tar.gz $job_dir
 	mkdir -p $job_dir/out
 	cp -a $dir_macros/gridrun.sh $job_dir
 	CMD="/exp/seaquest/app/software/script/jobsub_submit_spinquest.sh"
-	CMD+=" --expected-lifetime='short'"
+	CMD+=" --expected-lifetime='medium'"
 	CMD+=" --memory=2000"
 	CMD+=" -L $job_dir/log_gridrun.txt"
-	CMD+=" -f $job_dir/input_MC.tar.gz"
+	CMD+=" -f $job_dir/input_ALL.tar.gz"
 	CMD+=" -d OUTPUT $job_dir/out"
-	CMD+=" file://$job_dir/gridrun.sh $reco_type $particle_type $n_events $z_vtx_min $z_vtx_max $EMCal_pos $St3_pos_dif"
+	CMD+=" file://$job_dir/gridrun.sh $reco_type $particle_type $do_emul $do_MC_embedding $do_data_embedding $n_events $z_vtx_min $z_vtx_max $EMCal_pos $St3_pos_dif"
 	echo $CMD
 	unbuffer $CMD |& tee $job_dir/log_jobsub_submit.txt
 	RET_SUB=${PIPESTATUS[0]}

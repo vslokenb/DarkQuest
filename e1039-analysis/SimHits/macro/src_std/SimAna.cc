@@ -190,7 +190,7 @@ int SimAna::ResetEvalVars()
 {
     /** Hits
      */
-    for (int i = 0; i < 1000; ++i)
+    for (int i = 0; i < 5000; ++i)
     {
         hit_detid[i] = std::numeric_limits<short>::max();    // detector ID
         hit_elmid[i] = std::numeric_limits<short>::max();    // element ID
@@ -497,7 +497,7 @@ int SimAna::process_event(PHCompositeNode *topNode)
         SQHit *hit = _hitVector->at(ihit);
         // if(!hit->is_in_time()) continue;
         int det_id = hit->get_detector_id();
-        if (n_hits <= 1000)
+        if (n_hits <= 5000)
         {
             // SQHit* hit = _hitVector->at(ihit);
             int hit_id = hit->get_hit_id();
