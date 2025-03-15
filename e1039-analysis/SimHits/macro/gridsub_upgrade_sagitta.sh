@@ -54,9 +54,9 @@ do
 		tar -czvf input_ALL.tar.gz input_MC.tar.gz Embedding.root
 	elif [ $do_data_embedding == "true" ]; then
 		emb_ind=$(( dir_ind % 160 + 1 ))
-		if [ $emb_ind == 41 ]; then
-			continue
-		fi
+		#if [ $emb_ind == 41 ]; then
+		#	continue
+		#fi
 		emb_dir=$(printf "%04d" "$emb_ind")
 		cp /pnfs/e1039/persistent/users/kenichi/data_emb_e906/$emb_dir/embedding_data.root Embedding.root
 		tar -czvf input_ALL.tar.gz input_MC.tar.gz Embedding.root
