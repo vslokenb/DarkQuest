@@ -1,7 +1,7 @@
 import ROOT
 import matplotlib.pyplot as plt
 import argparse
-
+import numpy as np
 import argparse
 import mplhep as hep
 plt.style.use(hep.style.CMS)
@@ -9,6 +9,7 @@ plt.style.use(hep.style.CMS)
 parser = argparse.ArgumentParser(description="A Python script that accepts command-line options")
 parser.add_argument('--type', type=str, help="Description of input sample type (name of directory!)", required=True)
 parser.add_argument('--nominal', type=str, help="Description of default sample (name of directory!)", default='newPar')
+parser.add_argument('--ecal', type=str, help="Description of default ecal sample (name of directory!)", default='newPar_ECAL')
 args = parser.parse_args()
 
 # FUNCTION TO DO ROUGH PZ MATCH CONDITION
@@ -92,7 +93,7 @@ def cal_eff(file_names,bins = [-300,42]):
         Effs.append(eff)
     return Effs
 
-bins = [-300, -250, -200, -150, -100, -50, 0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600]
+bins = np.arange(-300,600,50)
 #print(cal_eff("m0_emul/reco_standard_mu*.root", bins))
 #print(cal_eff("m100_emul/reco_standard_mu*.root", bins))
 #print(cal_eff("m100_emul/reco_standard_mu*.root", bins))
@@ -100,34 +101,34 @@ bins = [-300, -250, -200, -150, -100, -50, 0, 50, 100, 150, 200, 250, 300, 350, 
     #colors = ['b', 'g', 'r', 'c']  # Colors for different directories
     #labels = ['0cm', '-50cm', '-100cm', '-200cm']  # Labels for the directories
     #for i, (bin_resols, xaxis) in enumerate(zip(all_bin_resols, all_xaxis)):
-files=[f"/seaquest/users/xinlongl/semi-persistent/geom_change/m0_dis_{args.type}_{args.nominal}/reco_displaced_JPsi*.root",
-       f"/seaquest/users/xinlongl/semi-persistent/geom_change/m100_dis_{args.type}_{args.nominal}/reco_displaced_JPsi*.root",
-       f"/seaquest/users/xinlongl/semi-persistent/geom_change/m200_dis_{args.type}_{args.nominal}/reco_displaced_JPsi*.root",
-       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m200_std_{args.type}_{args.nominal}/reco_displaced_JPsi*.root"],
-    #f"0cm_shift_standard_{args.type}/reco_standard_JPsi*.root",
-       #f"100cm_shift_standard_{args.type}/reco_standard_JPsi*.root",
-       #f"200cm_shift_standard_{args.type}/reco_standard_JPsi*.root",
-       f"/seaquest/users/xinlongl/semi-persistent/geom_change/m0_dis_original_{args.nominal}/reco_displaced_JPsi*.root"]
+files=[f"/seaquest/users/xinlongl/semi-persistent/geom_change/m0_std_original_{args.nominal}/reco_standard_JPsi*.root",
+       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m100_std_{args.type}_{args.nominal}/reco_standard_JPsi*.root",
+       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m200_std_{args.type}_{args.nominal}/reco_standard_JPsi*.root",
+       #"m0_aligned_emul/reco_standard_JPsi*.root",
+       "m100_aligned_emul/reco_standard_JPsi*.root",
+       "m200_aligned_emul/reco_standard_JPsi*.root"
+       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m0_std_{args.type}_{args.ecal}/reco_standard_JPsi*.root",
+       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m100_std_{args.type}_{args.ecal}/reco_standard_JPsi*.root",
+       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m200_std_{args.type}_{args.ecal}/reco_standard_JPsi*.root",
 
-axis=[-275,-225,-175,-125,-75,-25,25,75,125,175,225,275,325,375,425,475,525,575]
-labels=['0cm shift','100cm shift','200cm shift', 'nominal']
-colors=['b','g','r','c']
-plt.yscale('log')
+       ]
+axis=np.arange(-275,575,50)
+labels=['nominal', '100cm shift with EMCal', '200cm shift with EMCal']
+colors=['b','g','r','y','m']
+markers=['x','o','o','o']
 for i in range(len(files)):
-    print(files[i])
     x=cal_eff(files[i],bins)
-    plt.plot(axis,x, label=labels[i], marker='.',color=colors[i])
+    print(type(x))
+    plt.plot(axis,x, label=labels[i], marker=markers[i],mfc='none',color=colors[i])
 
 
 # Set plot labels and title
 plt.xlabel('truth z vtx')
 plt.ylabel('efficiency')
-plt.ylim(0,1)
+#plt.ylim(0,1)
 plt.legend()
-plt.title('Dimuon efficiency x acceptance (dis tracking)')
+plt.title('Dimuon efficiency x acceptance (std tracking)')
 plt.yscale('log')
 
-
 # Save and show the plot
-plt.savefig(f'fast_eff_dimuon_{args.type}_{args.nominal}.pdf', format='pdf')
-plt.show()
+plt.savefig(f'final_batch/fast_eff_dimuon_{args.type}_{args.ecal}.pdf', format='pdf', bbox_inches="tight")

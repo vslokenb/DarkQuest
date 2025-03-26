@@ -9,6 +9,7 @@ plt.style.use(hep.style.CMS)
 parser = argparse.ArgumentParser(description="A Python script that accepts command-line options")
 parser.add_argument('--type', type=str, help="Description of input sample type (name of directory!)", required=True)
 parser.add_argument('--nominal', type=str, help="Description of default sample (name of directory!)", default='newPar')
+parser.add_argument('--ecal', type=str, help="Description of default ecal sample (name of directory!)", default='newPar_ECAL')
 args = parser.parse_args()
 
 # FUNCTION TO DO ROUGH PZ MATCH CONDITION
@@ -62,6 +63,8 @@ int validPz(RVec<double> track_pz_st3){
 
 def cal_reso(file_names,bins = [-300,42]):
     rdf = ROOT.RDataFrame("Events", file_names).Define("truthang_xz","ang_xz(truthtrack_pz_st3, truthtrack_pz_st3, truthtrack_py_st3)").Define("ang_xz","ang_xz(track_pz_st3, truthtrack_pz_st3, track_py_st3)")
+    total_count=rdf.Count().GetValue()
+    total_reco=0
     Resos = []
     for i in range(len(bins)-1):
         l_bin = bins[i]
@@ -75,6 +78,7 @@ def cal_reso(file_names,bins = [-300,42]):
         N_signal0 = N_recoed.Define("pz_diff1","pz_diff1(ang_xz, truthang_xz)")
         #n1=N_signal.Count().GetValue()
         N_signal = N_signal0.Filter("pz_diff1 < 999")
+        total_reco+=N_signal.Count().GetValue()
         try:
             selection=N_signal.AsNumpy(columns=["pz_diff1"])
         #print(selection)
@@ -84,7 +88,8 @@ def cal_reso(file_names,bins = [-300,42]):
             reso1=0
         Resos.append(reso1)
 
-    return Resos
+    total_eff=total_reco / total_count
+    return Resos,total_eff
 
 bins = np.arange(-0.1,0.1,0.01)
 #print(cal_eff("m100_emul/reco_standard_mu*.root", bins))
@@ -93,22 +98,30 @@ bins = np.arange(-0.1,0.1,0.01)
     #colors = ['b', 'g', 'r', 'c']  # Colors for different directories
     #labels = ['0cm', '-50cm', '-100cm', '-200cm']  # Labels for the directories
     #for i, (bin_resols, xaxis) in enumerate(zip(all_bin_resols, all_xaxis)):
-files=[f"/seaquest/users/xinlongl/semi-persistent/geom_change/m0_std_{args.type}_{args.nominal}/reco_standard_mu*.root",
-       f"/seaquest/users/xinlongl/semi-persistent/geom_change/m100_std_{args.type}_{args.nominal}/reco_standard_mu*.root",
-       f"/seaquest/users/xinlongl/semi-persistent/geom_change/m200_std_{args.type}_{args.nominal}/reco_standard_mu*.root",
-       f"/seaquest/users/xinlongl/semi-persistent/geom_change/m0_std_original_{args.nominal}/reco_standard_mu*.root"]#[f"0cm_shift_standard_{args.type}/reco_standard_JPsi*.root",f"100cm_shift_standard_{args.type}/reco_standard_JPsi*.root",f"200cm_shift_standard_{args.type}/reco_standard_JPsi*.root",f"/seaquest/users/xinlongl/semi-persistent/geom_change/m0_std_original_{args.nominal}/reco_standard_JPsi*.root"]
+files=files=[f"/seaquest/users/xinlongl/semi-persistent/geom_change/m0_std_original_{args.nominal}/reco_standard_mu*.root",
+       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m100_std_{args.type}_{args.nominal}/reco_standard_mu*.root",
+       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m200_std_{args.type}_{args.nominal}/reco_standard_mu*.root",
+       #"m0_aligned_emulreco_standard_mu*.root",
+       "m100_aligned_emul/reco_standard_mu*.root",
+       "m200_aligned_emul/reco_standard_mu*.root"
+       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m0_std_{args.type}_{args.ecal}/reco_standard_mu*.root",
+       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m100_std_{args.type}_{args.ecal}/reco_standard_mu*.root",
+       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m200_std_{args.type}_{args.ecal}/reco_standard_mu*.root",
+
+       ]
 axis=np.arange(-0.095,0.095,0.01)
-labels=['0cm shift','100cm shift','200cm shift', 'nominal']
-colors=['b','g','r','c']
+labels=['nominal', '100cm shift with EMCal', '200cm shift with EMCal']
+colors=['b','g','r','y','m']
+markers=['x','o','o','o']
 for i in range(len(files)):
-    x=cal_reso(files[i],bins)
+    x,eff=cal_reso(files[i],bins)
     print(type(x))
-    plt.plot(axis,x, label=labels[i], marker='.',color=colors[i])
+    plt.plot(axis,x, label=labels[i]+f": eff x acc = {eff:.2f}", marker=markers[i],mfc='none',color=colors[i])
 
 
 # Set plot labels and title
 plt.xlabel('st3 truth angle (py/pz)')
-plt.ylabel('angular resolution per muon')
+plt.ylabel(r'$\sigma (\frac{p_y}{p_z})$ ')
 plt.ylim(0,0.001)
 #plt.yscale('log')
 plt.legend()
@@ -117,6 +130,6 @@ plt.title('Muon gun angular resolution py/pz')
 
 
 # Save and show the plot
-plt.savefig(f'fast_reso/fast_reso_ang_pypz_muon_{args.type}_{args.nominal}.pdf', format='pdf')
+plt.savefig(f'final_batch/fast_reso_ang_pypz_muon_{args.type}_{args.ecal}.pdf', format='pdf', bbox_inches="tight")
 plt.show()
 

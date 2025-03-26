@@ -9,6 +9,7 @@ plt.style.use(hep.style.CMS)
 parser = argparse.ArgumentParser(description="A Python script that accepts command-line options")
 parser.add_argument('--type', type=str, help="Description of input sample type (name of directory!)", required=True)
 parser.add_argument('--nominal', type=str, help="Description of default sample (name of directory!)", default='newPar')
+parser.add_argument('--ecal', type=str, help="Description of default ecal sample (name of directory!)", default='newPar_ECAL')
 args = parser.parse_args()
 
 # C++ function to perform the logic "Accepted event = at least n detIDs in certain range and at least m hit on specific detID"
@@ -69,17 +70,25 @@ bins = [-300, -250, -200, -150, -100, -50, 0, 50, 100, 150, 200, 250, 300, 350, 
     #colors = ['b', 'g', 'r', 'c']  # Colors for different directories
     #labels = ['0cm', '-50cm', '-100cm', '-200cm']  # Labels for the directories
     #for i, (bin_resols, xaxis) in enumerate(zip(all_bin_resols, all_xaxis)):
-files=[f"/seaquest/users/xinlongl/semi-persistent/geom_change/m0_std_{args.type}_{args.nominal}/reco_standard_JPsi*.root",
-       f"/seaquest/users/xinlongl/semi-persistent/geom_change/m100_std_{args.type}_{args.nominal}/reco_standard_JPsi*.root",
-       f"/seaquest/users/xinlongl/semi-persistent/geom_change/m200_std_{args.type}_{args.nominal}/reco_standard_JPsi*.root",
-       f"/seaquest/users/xinlongl/semi-persistent/geom_change/m0_std_original_{args.nominal}/reco_standard_JPsi*.root"]
+files=[f"/seaquest/users/xinlongl/semi-persistent/geom_change/m0_std_original_{args.nominal}/reco_standard_JPsi*.root",
+       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m100_std_{args.type}_{args.nominal}/reco_standard_JPsi*.root",
+       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m200_std_{args.type}_{args.nominal}/reco_standard_JPsi*.root",
+       #"m0_aligned_emul/reco_standard_JPsi*.root",
+       "m100_aligned_emul/reco_standard_JPsi*.root",
+       "m200_aligned_emul/reco_standard_JPsi*.root"
+       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m0_std_{args.type}_{args.ecal}/reco_standard_JPsi*.root",
+       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m100_std_{args.type}_{args.ecal}/reco_standard_JPsi*.root",
+       #f"/seaquest/users/xinlongl/semi-persistent/geom_change/m200_std_{args.type}_{args.ecal}/reco_standard_JPsi*.root",
+
+       ]
 axis=[-275,-225,-175,-125,-75,-25,25,75,125,175,225,275,325,375,425,475,525,575]
-labels=['0cm shift','100cm shift','200cm shift', 'nominal']
-colors=['b','g','r','c']
+labels=['nominal', '100cm shift with EMCal', '200cm shift with EMCal']
+colors=['b','g','r','y','m']
+markers=['x','o','o','o']
 for i in range(len(files)):
     x=cal_accept(files[i],bins)
-    plt.plot(axis,x, label=labels[i], marker='.',color=colors[i])
-
+    print(type(x))
+    plt.plot(axis,x, label=labels[i], marker=markers[i],mfc='none',color=colors[i])
 
 # Set plot labels and title
 plt.xlabel('truth z vtx')
@@ -91,5 +100,4 @@ plt.title('J/Psi acceptance (std tracking)')
 
 
 # Save and show the plot
-plt.savefig(f'fast_accept_jpsi_{args.type}_{args.nominal}.pdf', format='pdf')
-plt.show()
+plt.savefig(f'final_batch/accept_jpsi_{args.type}_{args.ecal}.pdf', format='pdf', bbox_inches="tight")
