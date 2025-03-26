@@ -7,7 +7,7 @@
 DarkQuest is a proton fixed-target experiment especially sensitive to visible dark sector signatures in MeV-GeV mass range. 
 It proposes a few low-cost upgrades to existing detectors from the SeaQuest/SpinQuest (E-1039) Fermilab fixed target beam-dump experiment.
 
-# Theory and Experimental moitvation 
+# Theory and Experimental motivation 
 
 ## Dark sector signatures
 
@@ -45,8 +45,10 @@ Here is the schematic of the DarkQuest experiment with the Ecal in red.
   <img src="/images/detector.png" width="500" alt="Detector Setup">
 </p>
 
-Here:
-* `DP` stands for `Dark Photon Hodoscope`. There are two 
+Results from the first test beam campaign in Summer 2024 can found here: [Arxiv.2502.20590](https://arxiv.org/pdf/2502.20590)
+
+
+* `DP` stands for `Dark Photon Hodoscope`. There are two. 
 
 Find more on this [blog post by Duc](https://medium.com/darkquest/the-darkquest-experiment-1b8e46de1e40).
 
