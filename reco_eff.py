@@ -6,6 +6,12 @@ import matplotlib.pyplot as plt
 import awkward as ak
 from scipy.stats import binned_statistic
 
+
+##################################
+# ORIGINAL EFFICIENCY SCRIPT FOR COMPLETENESS. LOGIC EASIER TO FOLLOW MAYBE?
+##################################
+
+
 # Directory paths (adjust these as needed)
 directories = [
     '/seaquest/users/vsloken/scratch/jpsi_old/pro_m0_std',
