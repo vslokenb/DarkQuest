@@ -59,8 +59,8 @@ int RecoE1039SimZ(const int nevents = 1000,
                  std::string out_path = "./",
                  std::string pileup_file = "/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root",
                  const int verbosity = 0,
-                 const std::string vtx_mode = "All",   // "All", "Target", "Dump", "TargetDumpGap", "Manual"
-                 const double vtx_z_start = 0.0,       // z range [cm], used only when vtx_mode == "Manual"
+                 const std::string vtx_mode = "All",   // "All", "Target", "Dump", "TargetDumpGap", "Manual", "Fixed"
+                 const double vtx_z_start = 0.0,       // z range [cm], used when vtx_mode is "Manual" or "Fixed"
                  const double vtx_z_stop = 500.0)
 {
     // input simulation
@@ -360,6 +360,27 @@ int RecoE1039SimZ(const int nevents = 1000,
         // (SQPrimaryVertexGen.C:137-157; any other string -> exit(1))
         // TARGETONLY/DUMPONLY silently OVERRIDE the mode string if true
         // (SQPrimaryVertexGen.C:127-136) - pin them off so vtx_mode wins:
+        // "Fixed" (this macro only): vertex uniform in vtx_z_start < z < vtx_z_stop
+        // at x = y = 0, WITHOUT the material-aware generator. Use it for narrow
+        // z slices: SQPrimaryVertexGen "Manual" drops any material piece whose
+        // centre lies beyond z_stop and never truncates a piece to the range, so
+        // a slice inside the solid dump (one piece, 0..503 cm) leaves no piece
+        // to sample from and the job dies. "Fixed" generates pp only (no pp/pn
+        // mix by material).
+        const bool fixed_vtx = (vtx_mode == "Fixed");
+        if (fixed_vtx)
+        {
+            std::cout << " Fixed vertex range: " << vtx_z_start << " < z < " << vtx_z_stop
+                      << " cm (uniform, x = y = 0, pp only)" << std::endl;
+            pythia8->set_vertex_distribution_mean(0.0, 0.0, 0.5 * (vtx_z_start + vtx_z_stop), 0.0);
+            pythia8->set_vertex_distribution_width(0.0, 0.0, 0.5 * (vtx_z_stop - vtx_z_start), 0.0);
+            pythia8->set_vertex_distribution_function(PHHepMCGenHelper::Gaus,
+                                                      PHHepMCGenHelper::Gaus,
+                                                      PHHepMCGenHelper::Uniform,
+                                                      PHHepMCGenHelper::Uniform);
+        }
+        else
+        {
         rc->set_BoolFlag("TARGETONLY", false);
         rc->set_BoolFlag("DUMPONLY", false);
         rc->set_CharFlag("VTX_GEN_MATERIAL_MODE", vtx_mode.c_str());
@@ -388,6 +409,7 @@ int RecoE1039SimZ(const int nevents = 1000,
                                                   PHHepMCGenHelper::Gaus,
                                                   PHHepMCGenHelper::Gaus,
                                                   PHHepMCGenHelper::Uniform);
+        }   // end of !fixed_vtx
         // ----------------------------------------------------------------------
         pythia8->set_embedding_id(1);
         se->registerSubsystem(pythia8);
