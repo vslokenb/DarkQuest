@@ -46,19 +46,20 @@ using namespace std;
  * for Aprime signal, is_displaced to always set to True
  */
 
-int RecoE1039Sim(const int nevents = 200,
-                 const int isim = 1,
+int RecoE1039Sim(const int nevents = 1000,
+                 const int isim = 4,
                  const int igun = 0,
-                 const double zvertex = -300, // target_coil_pos_z
+                 const double zvertex = -300, // now used ONLY by the particle gun (isim=3)
                  const bool do_displaced_tracking = true,
                  const bool do_analysis = true,
-                 bool run_pileup = false,
+                 bool run_pileup = true,
                  std::string input_file = "Brem_0.550000_z500_600_eps_-5.4",
                  std::string input_path = "$HepMC_DIR/",
-                 std::string out_file = "output.root",
+                 std::string out_file = "output_dy_more.root",
                  std::string out_path = "./",
                  std::string pileup_file = "/pnfs/e1039/persistent/users/apun/bkg_study/e1039pythiaGen_26Oct21/10_bkge1039_pythia_wshielding_100M.root",
-                 const int verbosity = 0)
+                 const int verbosity = 0,
+                 const std::string vtx_mode = "All")   // <-- NEW: "All", "Target", "Dump", "TargetDumpGap", "Manual"
 {
     // input simulation
     bool do_aprime_muon{false}, do_aprime_electron{false};
@@ -141,6 +142,10 @@ int RecoE1039Sim(const int nevents = 200,
         run_pileup = true;
         std::cout << " DO Background Only. Set the run_pileup to true " << std::endl;
         break;
+    // case 9: // psi'
+    //     do_psip = true;
+    //     std::cout << " DO PSI' " << std::endl;
+    //     break;
     }
 
     /** Verbosity (https://github.com/E1039-Collaboration/e1039-core/blob/master/framework/fun4all/Fun4AllBase.h#L33-L55)
@@ -181,6 +186,28 @@ int RecoE1039Sim(const int nevents = 200,
     recoConsts *rc = recoConsts::instance();
     rc->set_DoubleFlag("FMAGSTR", FMAGSTR);
     rc->set_DoubleFlag("KMAGSTR", KMAGSTR);
+    rc->set_BoolFlag("COARSE_MODE", false);
+    rc->set_BoolFlag("REQUIRE_MUID", false);
+    rc->set_CharFlag("HIT_MASK_MODE", "X");
+    cout << "testing reco consts 1.5 " << endl;
+    rc->set_CharFlag("AlignmentMille", "config/align_mille_v10_a.txt");
+    cout << "testing reco consts 1.5 " << endl;
+    rc->set_CharFlag("AlignmentHodo", "");
+    rc->set_CharFlag("AlignmentProp", "");
+    rc->set_CharFlag("Calibration", "");
+    cout << "testing reco consts 1.6 " << endl;
+    rc->set_IntFlag ("MaxHitsDC0" , int(350)); // /3.0
+    rc->set_IntFlag ("MaxHitsDC1" , int(350)); // /3.0
+    rc->set_IntFlag ("MaxHitsDC2" , int(170)); // /3.0
+    rc->set_IntFlag ("MaxHitsDC3p", int(140)); // /3.0
+    rc->set_IntFlag ("MaxHitsDC3m", int(140)); // /3.0
+    rc->set_DoubleFlag("RejectWinDC0" , 0.3);
+    rc->set_DoubleFlag("RejectWinDC1" , 0.5);
+    rc->set_DoubleFlag("RejectWinDC2" , 0.35);
+    rc->set_DoubleFlag("RejectWinDC3p", 0.24);
+    rc->set_DoubleFlag("RejectWinDC3m", 0.24);
+
+    rc->set_CharFlag("GeomPlane", "2026050501");
     if (doEMCal)
     {
         rc->set_CharFlag(
@@ -306,11 +333,53 @@ int RecoE1039Sim(const int nevents = 200,
     {
         PHPythia8 *pythia8 = new PHPythia8();
         pythia8->Verbosity(verbosity);
+        // /seaquest is not mounted on grid worker nodes; there the configs
+        // come from data/pythiaconfig shipped inside input.tar.gz (cwd).
+        std::string pythia_cfg_dir = "/seaquest/users/vsloken/displaced_rereco/DarkQuest/e1039-analysis/SimHits/data/pythiaconfig/";
+        if (gSystem->AccessPathName(pythia_cfg_dir.c_str()))
+            pythia_cfg_dir = "data/pythiaconfig/";
         if (do_dy)
-            pythia8->set_config_file("$DIR_TOP/data/pythiaconfig/phpythia8_DY.cfg");
+            pythia8->set_config_file((pythia_cfg_dir + "phpythia8_DY.cfg").c_str());
         else
-            pythia8->set_config_file("$DIR_TOP/data/pythiaconfig/phpythia8_Jpsi.cfg");
-        pythia8->set_vertex_distribution_mean(0.0, 0.0, zvertex, 0);
+            pythia8->set_config_file((pythia_cfg_dir + "phpythia8_Jpsi.cfg").c_str());
+        // elif (do_psip)
+        //     pythia8->set_config_file((pythia_cfg_dir + "phpythia8_psip.cfg").c_str());
+        
+                // ---- material-aware vertex generation --------------------------------
+        // Sample the interaction point from the real TGeo material budget
+        // (SQPrimaryVertexGen: TGeo walk, attenuation x density x lambda_int
+        // weighting, exponential-in-lambda within each slab), instead of the
+        // fixed point z = -300 that made truth z a delta function.
+        //   "All"           : z in [-800, +503] cm, target+dump weighted by material
+        //   "Target"        : NH3 target only, z ~ [-303.95, -296.05]
+        //   "Dump"          : fmag_body only,  z ~ [0, 502.92]
+        //   "TargetDumpGap" : between target face and FMAG face
+        //   "Manual"        : also set VTX_GEN_Z_START / VTX_GEN_Z_STOP DoubleFlags
+        // (SQPrimaryVertexGen.C:137-157; any other string -> exit(1))
+        // TARGETONLY/DUMPONLY silently OVERRIDE the mode string if true
+        // (SQPrimaryVertexGen.C:127-136) - pin them off so vtx_mode wins:
+        rc->set_BoolFlag("TARGETONLY", false);
+        rc->set_BoolFlag("DUMPONLY", false);
+        rc->set_CharFlag("VTX_GEN_MATERIAL_MODE", vtx_mode.c_str());
+        pythia8->enableLegacyVtxGen();          // PHPythia8.h:104-108: routes vertex
+                                                // through SQPrimaryVertexGen and enables
+                                                // pp/pn selection by Z/A of the struck
+                                                // material (PHPythia8.C:208-211) - with a
+                                                // ONE-EVENT LAG: get_LegacyPARatio() returns
+                                                // _paratio, written only in move_vertex at the
+                                                // END of the previous event (PHHepMCGenHelper.cc:120);
+                                                // _paratio(0) at .cc:54 makes event 1 always pn.
+                                                // pnGen is auto-configured from the same .cfg
+                                                // with Beams:idB=2112 (PHPythia8.C:117-121).
+        // moveVertex is ADDITIVE on top of the sampled vertex (PHHepMCGenEvent.cc:110-116,
+        // applied unconditionally at PHHepMCGenHelper.cc:148-152): the mean MUST be zero.
+        pythia8->set_vertex_distribution_mean(0.0, 0.0, 0.0, 0.0);
+        pythia8->set_vertex_distribution_width(0.0, 0.0, 0.0, 0.0); 
+        pythia8->set_vertex_distribution_function(PHHepMCGenHelper::Gaus,
+                                                  PHHepMCGenHelper::Gaus,
+                                                  PHHepMCGenHelper::Gaus,
+                                                  PHHepMCGenHelper::Uniform);
+        // ----------------------------------------------------------------------
         pythia8->set_embedding_id(1);
         se->registerSubsystem(pythia8);
 
@@ -348,6 +417,14 @@ int RecoE1039Sim(const int nevents = 200,
     }
 
     // pileup
+    if (run_pileup && gSystem->AccessPathName(pileup_file.c_str()))
+    {
+        // /pnfs is not mounted on grid worker nodes; jobsub_submit -f
+        // delivers the file into $CONDOR_DIR_INPUT instead.
+        const char *dir_in = gSystem->Getenv("CONDOR_DIR_INPUT");
+        if (dir_in)
+            pileup_file = std::string(dir_in) + "/" + gSystem->BaseName(pileup_file.c_str());
+    }
     if (run_pileup)
     {
         SQPileupGen *extgen = new SQPileupGen();
@@ -418,7 +495,7 @@ int RecoE1039Sim(const int nevents = 200,
     }
     se->registerSubsystem(digitizer);
 
-    bool do_acceptance = false;
+    bool do_acceptance = true;
     if (do_acceptance)
     {
         // if turned on, only the events passing the geometric acceptance will be saved
